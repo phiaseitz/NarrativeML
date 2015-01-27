@@ -1,0 +1,12 @@
+SAMPLE TAGS
+
+narrative num = 
+	scene = High
+		speaker = Interviewer
+		speaker = participant
+	scene = Low
+		speaker = Interviewer
+		speaker = participant
+	Scene = Turning
+		speaker = Interviewer
+		speaker = Participant
