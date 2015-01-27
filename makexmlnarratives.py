@@ -21,6 +21,9 @@ def readFile (num_narrative):
 			print ('Are you connected to fsvs01 and have you mounted the research drive?')
 		return []
 
+def getRidOfEmptyLines (narrative_lines):
+	newline_characters = ['\n', '\r', '\r\n']
+	return [line for line in narrative_lines if not (line in newline_characters)]
 
 def linesToXML (narrative_lines):
 	#All the scenes
@@ -31,7 +34,9 @@ def linesToXML (narrative_lines):
 	participant = ['R', 'RESPONDENT' ,'MALE SPEAKER', 'FEMALE SPEAKER', 'INTERVIEWEE', 'THE INTERVIEWEE', 'PARTICIPANT', 'ANSWER']
 	
 	current_scene = ''
-	current_speaker = ''
+	current_speaker = 'I'
+
+	narrative_lines = getRidOfEmptyLines(narrative_lines)
 
 	for line in narrative_lines:
 		#Get rid of new lines and carriage returns
@@ -47,19 +52,21 @@ def linesToXML (narrative_lines):
 		#if there's no colon then we dont know who is speaking
 		elif colon_index == -1:
 			print ('speaker remains the same: {speaker}'.format(speaker = current_speaker))
+			print (line)
 		#If there's a colon early on -- we know we have a speaker
 		elif colon_index < 30:
 			current_speaker = line[:colon_index]
 			print (current_speaker)
+			print (line)
 
 
 def main():
 	#Narratives to start and end at
 	first_narrative = 1
-	last_narrative = 10
+	last_narrative = 1
 
 		#Loop through all the narratives
-	for narrative_number in range(first_narrative,last_narrative):
+	for narrative_number in range(first_narrative,last_narrative + 1):
 		print ('reading narrative {narrative_num}'.format(narrative_num = str(narrative_number)))
 
 		narrative_text = readFile(narrative_number)
