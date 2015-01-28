@@ -32,9 +32,11 @@ def cleanText (narrative_lines):
 		clean_line = re.sub(r'\s*\n', '',line).decode('utf-8')
 
 		clean_lines.append(clean_line)
-
-	print (clean_lines)
 	return clean_lines
+
+def removeSpeakerFromLine (line):
+	clean_line = re.sub(r'\A\w*:\s*', '',line)
+	return clean_line
 def linesToXML (narrative_lines, narrative_number):
 	#All the scenes
 	scenes = ['HIGH POINT', 'LOW POINT', 'TURNING POINT']
@@ -59,27 +61,29 @@ def linesToXML (narrative_lines, narrative_number):
 			#print (current_scene)
 			narrative.append(etree.Element('scene', scene_name = current_scene.title()))
 		#if there's no colon then we dont know who is speaking
-		elif colon_index == -1:
+		elif colon_index == -1 or not(line[:colon_index] in speakers_dict):
 			#print ('speaker remains the same: {speaker}'.format(speaker = current_speaker))
 			#print (line)
 			current_passage = current_passage + ' ' + line
 		#If there's a colon early on -- we know we have a speaker
-		elif colon_index < 16:
-			speaker = line[:colon_index]
-			if speakers_dict[speaker] == current_speaker:
+		elif line[:colon_index] in speakers_dict:
+			passage_speaker = speakers_dict[line[:colon_index]]
+			if passage_speaker == current_speaker:
 				current_passage = current_passage + ' ' + line
 			else:
 				if current_scene:
 					current_element = narrative[-1]
 					current_element.append(etree.Element('passage', speaker = current_speaker))
 					current_element[-1].text = current_passage #'testing . a! a? \''
-					current_passage = ''
-					current_speaker = speakers_dict[speaker]
+					#print current_speaker
+					#print current_passage
+					current_passage = removeSpeakerFromLine(line)
+					current_speaker = passage_speaker
 	
 			#print (current_speaker)
 			#print (line)
 
-	print(etree.tostring(narrative, pretty_print=True))		
+	#print(etree.tostring(narrative, pretty_print=True))		
 
 def main():
 	#Narratives to start and end at
@@ -93,7 +97,7 @@ def main():
 		narrative_text = readFile(narrative_number)
 		if narrative_text:
 			clean_text = cleanText(narrative_text)
-			#print (clean_text)
+			print (clean_text)
 			linesToXML(clean_text, narrative_number)
 
 
