@@ -1,6 +1,7 @@
 import os
 import re
-import lxml
+import unicodedata
+from lxml import etree
 
 
 def readFile (num_narrative):
@@ -25,18 +26,23 @@ def getRidOfEmptyLines (narrative_lines):
 	newline_characters = ['\n', '\r', '\r\n']
 	return [line for line in narrative_lines if not (line in newline_characters)]
 
-def linesToXML (narrative_lines):
+def remove_control_characters(s):
+    return "".join(ch for ch in s if unicodedata.category(ch)[0]!="C")
+
+def linesToXML (narrative_lines, narrative_number):
 	#All the scenes
 	scenes = ['HIGH POINT', 'LOW POINT', 'TURNING POINT']
 
 	#Possible interviewier and participant tags in the txt files
-	interviewer = ['I', 'THE INTERVIEWER', 'INTERVIEWER']
-	participant = ['R', 'RESPONDENT' ,'MALE SPEAKER', 'FEMALE SPEAKER', 'INTERVIEWEE', 'THE INTERVIEWEE', 'PARTICIPANT', 'ANSWER']
+	speakers_dict = {'I' : 'Interviewer', 'THE INTERVIEWER' : 'Interviewer', 'INTERVIEWER' : 'Interviewer','R' : 'Respondent', 'RESPONDENT' : 'Respondent' ,'MALE SPEAKER' : 'Respondent', 'FEMALE SPEAKER' : 'Respondent', 'INTERVIEWEE' : 'Respondent', 'THE INTERVIEWEE' : 'Respondent', 'PARTICIPANT' : 'Respondent', 'ANSWER' : 'Respondent'}
 	
 	current_scene = ''
-	current_speaker = 'I'
+	current_speaker = 'Interviewer'
+	current_passage = ''
 
 	narrative_lines = getRidOfEmptyLines(narrative_lines)
+
+	narrative = etree.Element('narrative', narrative_num = str(narrative_number))
 
 	for line in narrative_lines:
 		#Get rid of new lines and carriage returns
@@ -49,16 +55,27 @@ def linesToXML (narrative_lines):
 		if line.upper() in scenes:
 			current_scene = line
 			print (current_scene)
+			narrative.append(etree.Element('scene', scene_name = current_scene.title()))
 		#if there's no colon then we dont know who is speaking
 		elif colon_index == -1:
 			print ('speaker remains the same: {speaker}'.format(speaker = current_speaker))
 			print (line)
+			current_passage = current_passage + ' ' + line
 		#If there's a colon early on -- we know we have a speaker
-		elif colon_index < 30:
-			current_speaker = line[:colon_index]
+		elif colon_index < 16:
+			speaker = line[:colon_index]
+			if speakers_dict[speaker] == current_speaker:
+				current_passage = current_passage + ' ' + line
+			else:
+				if current_scene:
+					current_element = narrative[-1]
+					current_element.append(etree.Element('passage', speaker = current_speaker))
+					current_element[-1].text = 'testing'
+				current_speaker = speakers_dict[speaker]
 			print (current_speaker)
 			print (line)
 
+	print(etree.tostring(narrative, pretty_print=True))		
 
 def main():
 	#Narratives to start and end at
@@ -72,7 +89,7 @@ def main():
 		narrative_text = readFile(narrative_number)
 
 		if narrative_text:
-			linesToXML(narrative_text)
+			linesToXML(narrative_text, narrative_number)
 
 
 if __name__ == '__main__':
