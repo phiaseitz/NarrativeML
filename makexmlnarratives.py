@@ -37,6 +37,12 @@ def cleanText (narrative_lines):
 def removeSpeakerFromLine (line):
 	clean_line = re.sub(r'\A\w*:\s*', '',line)
 	return clean_line
+
+def addTextToCurrentScene(narrative, passage_text, current_speaker):
+	current_scene = narrative[-1]
+	current_scene.append(etree.Element('passage', speaker = current_speaker))
+	current_scene[-1].text = passage_text
+
 def linesToXML (narrative_lines, narrative_number):
 	#All the scenes
 	scenes = ['HIGH POINT', 'LOW POINT', 'TURNING POINT']
@@ -72,18 +78,17 @@ def linesToXML (narrative_lines, narrative_number):
 				current_passage = current_passage + ' ' + line
 			else:
 				if current_scene:
-					current_element = narrative[-1]
-					current_element.append(etree.Element('passage', speaker = current_speaker))
-					current_element[-1].text = current_passage #'testing . a! a? \''
-					#print current_speaker
-					#print current_passage
+					addTextToCurrentScene(narrative, current_passage, current_speaker)
+					print current_speaker
+					print current_passage
 					current_passage = removeSpeakerFromLine(line)
 					current_speaker = passage_speaker
 	
 			#print (current_speaker)
 			#print (line)
-
-	#print(etree.tostring(narrative, pretty_print=True))		
+	addTextToCurrentScene(narrative, current_passage, current_speaker)
+	
+	print(etree.tostring(narrative, pretty_print=True))		
 
 def main():
 	#Narratives to start and end at
@@ -96,7 +101,8 @@ def main():
 
 		narrative_text = readFile(narrative_number)
 		if narrative_text:
-			clean_text = cleanText(narrative_text)
+			#Get rid of the line that has the narrative number in it
+			clean_text = cleanText(narrative_text[1:])
 			print (clean_text)
 			linesToXML(clean_text, narrative_number)
 
