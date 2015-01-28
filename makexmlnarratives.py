@@ -47,9 +47,10 @@ def linesToXML (narrative_lines, narrative_number):
 	#All the scenes
 	scenes = ['HIGH POINT', 'LOW POINT', 'TURNING POINT']
 
-	#Possible interviewier and participant tags in the txt files
+	#Possible interviewer and participant tags in the txt files
 	speakers_dict = {'I' : 'Interviewer', 'THE INTERVIEWER' : 'Interviewer', 'INTERVIEWER' : 'Interviewer','R' : 'Respondent', 'RESPONDENT' : 'Respondent' ,'MALE SPEAKER' : 'Respondent', 'FEMALE SPEAKER' : 'Respondent', 'INTERVIEWEE' : 'Respondent', 'THE INTERVIEWEE' : 'Respondent', 'PARTICIPANT' : 'Respondent', 'ANSWER' : 'Respondent'}
 	
+	first_scene = True
 	current_scene = ''
 	current_speaker = 'Interviewer'
 	current_passage = ''
@@ -62,7 +63,13 @@ def linesToXML (narrative_lines, narrative_number):
 		colon_index = line.find(':')
 
 		#If this is a scene heading
-		if line.upper() in scenes:
+		if line.upper() in scenes: 
+			if first_scene:
+				first_scene = False
+			else:
+				addTextToCurrentScene(narrative, current_passage, current_speaker)
+				current_passage = ''
+				current_speaker  = 'Interviewer'
 			current_scene = line
 			#print (current_scene)
 			narrative.append(etree.Element('scene', scene_name = current_scene.title()))
