@@ -35,7 +35,7 @@ def cleanText (narrative_lines):
 	return clean_lines
 
 def removeSpeakerFromLine (line):
-	clean_line = re.sub(r'\A\w*:\s*', '',line)
+	clean_line = re.sub(r'\A\w*\s*\w*:\s*', '',line)
 	return clean_line
 
 def addTextToCurrentScene(narrative, passage_text, current_speaker):
@@ -86,8 +86,8 @@ def linesToXML (narrative_lines, narrative_number):
 			else:
 				if current_scene:
 					addTextToCurrentScene(narrative, current_passage, current_speaker)
-					print current_speaker
-					print current_passage
+					#print current_speaker
+					#print current_passage
 					current_passage = removeSpeakerFromLine(line)
 					current_speaker = passage_speaker
 	
@@ -100,7 +100,7 @@ def linesToXML (narrative_lines, narrative_number):
 def main():
 	#Narratives to start and end at
 	first_narrative = 1
-	last_narrative = 1
+	last_narrative = 10
 
 		#Loop through all the narratives
 	for narrative_number in range(first_narrative,last_narrative + 1):
@@ -110,7 +110,7 @@ def main():
 		if narrative_text:
 			#Get rid of the line that has the narrative number in it
 			clean_text = cleanText(narrative_text[1:])
-			print (clean_text)
+			#print (clean_text)
 			linesToXML(clean_text, narrative_number)
 
 
