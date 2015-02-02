@@ -139,10 +139,22 @@ def linesToXML (narrative_lines, narrative_number):
 	#Prit it so that it looks pretty
 	print(etree.tostring(narrative, pretty_print=True))		
 	return narrative
+
+def saveXML (narrative_xml,narrative_number):
+	folder_path = '/Volumes/Research/Adler Research/Sophia OSS Stuff/' \
+		'Narratives_xml/' 
+	file_name = 'FLSA_{narrative_num}.xml'.format(narrative_num =
+		str(narrative_number).zfill(3))
+	full_file_path = folder_path+file_name
+
+	e_tree_narrative = etree.ElementTree(narrative_xml)
+
+	e_tree_narrative.write(full_file_path, pretty_print=True)
+
 def main():
 	#Narratives to start and end at
 	first_narrative = 1
-	last_narrative = 10
+	last_narrative = 164
 
 	#Loop through all the narratives
 	for narrative_number in range(first_narrative,last_narrative + 1):
@@ -155,8 +167,8 @@ def main():
 			#clean the text
 			clean_text = cleanText(narrative_text[1:])
 			#go from list of lines to xml
-			linesToXML(clean_text, narrative_number)
-
+			narrative = linesToXML(clean_text, narrative_number)
+			saveXML(narrative,narrative_number)
 
 if __name__ == '__main__':
 	main()
