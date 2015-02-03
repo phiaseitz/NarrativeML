@@ -1,0 +1,31 @@
+<narrative narrative_num="Narrative Number">
+  <scene scene_name="High Point" scene_score="Score" word_count="WordCount">
+    <passage speaker="Interviewer"> TEXT</passage>
+    <passage speaker="Interviewer">TEXT</passage>
+    <passage speaker="Respondent">TEXT</passage>
+    <passage speaker="Interviewer">TEXT</passage>
+    <passage speaker="Respondent">TEXT</passage>
+    <passage speaker="Interviewer">TEXT</passage>
+    <passage speaker="Respondent">TEXT</passage>
+    <passage speaker="Interviewer">TEXT</passage>
+    <passage speaker="Respondent">TEXT</passage>
+  </scene>
+  <scene scene_name="Low Point" scene_score="Score" word_count="WordCount">
+    <passage speaker="Interviewer">TEXT</passage>
+    <passage speaker="Respondent">TEXT</passage>
+    <passage speaker="Interviewer">TEXT</passage>
+    <passage speaker="Respondent">TEXT</passage>
+    <passage speaker="Interviewer">TEXT</passage>
+    <passage speaker="Respondent">TEXT</passage>
+  </scene>
+  <scene scene_name="Turning Point" scene_score="Score" word_count="WordCount">
+    <passage speaker="Interviewer">TEXT</passage>
+    <passage speaker="Respondent">TEXT</passage>
+    <passage speaker="Interviewer">TEXT</passage>
+    <passage speaker="Respondent">TEXT</passage>
+    <passage speaker="Interviewer">TEXT</passage>
+    <passage speaker="Respondent">TEXT</passage>
+    <passage speaker="Interviewer">TEXT</passage>
+    <passage speaker="Respondent">TEXT</passage>
+  </scene>
+</narrative>

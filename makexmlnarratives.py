@@ -122,7 +122,7 @@ def linesToXML (narrative_lines, narrative_number):
 			#If it's still the same person keep adding on to the 
 			#current passage
 			if passage_speaker == current_speaker:
-				current_passage = current_passage + ' ' + line
+				current_passage = current_passage + ' ' + removeSpeakerFromLine(line)
 			#Otherwise, add the text to the current scene, and then reset the 
 			#current passage and update the current speaker
 			else:
