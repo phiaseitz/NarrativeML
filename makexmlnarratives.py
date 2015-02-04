@@ -1,6 +1,7 @@
 import os
 import re
 import string
+import csv
 from lxml import etree
 
 #Reading the narrative file by line
@@ -64,7 +65,7 @@ def addTextToCurrentScene(narrative, passage_text, current_speaker):
 	current_scene[-1].text = passage_text
 
 #Go from a list of lines to an xml object
-def linesToXML (narrative_lines, narrative_number):
+def linesToXML (narrative_lines, narrative_number, narrative_scores):
 	#All the scenes
 	scenes = ['HIGH POINT', 'LOW POINT', 'TURNING POINT']
 
@@ -122,7 +123,8 @@ def linesToXML (narrative_lines, narrative_number):
 			#If it's still the same person keep adding on to the 
 			#current passage
 			if passage_speaker == current_speaker:
-				current_passage = current_passage + ' ' + removeSpeakerFromLine(line)
+				current_passage = (current_passage + ' ' + 
+					removeSpeakerFromLine(line))
 			#Otherwise, add the text to the current scene, and then reset the 
 			#current passage and update the current speaker
 			else:
@@ -137,7 +139,7 @@ def linesToXML (narrative_lines, narrative_number):
 	addTextToCurrentScene(narrative, current_passage, current_speaker)
 	
 	#Prit it so that it looks pretty
-	print(etree.tostring(narrative, pretty_print=True))		
+	#print(etree.tostring(narrative, pretty_print=True))		
 	return narrative
 
 def saveXML (narrative_xml,narrative_number):
@@ -151,10 +153,40 @@ def saveXML (narrative_xml,narrative_number):
 
 	e_tree_narrative.write(full_file_path, pretty_print=True)
 
+def makeScoresDict():
+	scores = {}
+	high_agency_index = 1
+	high_communion_index = 2
+	low_agency_index = 6
+	low_communion_index = 7
+	turning_agency_index = 11
+	turning_communion_index = 12
+
+	file_path = '/Volumes/Research/Adler Research/Sophia OSS Stuff/' \
+		'NarrativeScores.csv'
+	f = csv.reader(open(file_path, "rU"), dialect=csv.excel_tab)
+	
+	data = [row for row in f]
+	data = data[1:]
+
+	for row in data:
+		row_str = row[0]
+		print (row_str)
+		row_scores=row_str.split(',')
+		num_narrative = row_scores[0]
+		file_name = str(num_narrative)
+		scores[file_name] = (row_scores[high_agency_index], row_scores[low_agency_index], row_scores[turning_agency_index])
+
+	print (scores)
+	return scores
+
+
 def main():
 	#Narratives to start and end at
 	first_narrative = 1
 	last_narrative = 164
+
+	scores = makeScoresDict()
 
 	#Loop through all the narratives
 	for narrative_number in range(first_narrative,last_narrative + 1):
@@ -167,8 +199,11 @@ def main():
 			#clean the text
 			clean_text = cleanText(narrative_text[1:])
 			#go from list of lines to xml
-			narrative = linesToXML(clean_text, narrative_number)
-			saveXML(narrative,narrative_number)
+			narrative_scores = scores[str(narrative_number)]
+			narrative = linesToXML(clean_text, narrative_number,narrative_scores)
+			#saveXML(narrative,narrative_number)
+
+
 
 if __name__ == '__main__':
 	main()
