@@ -77,6 +77,8 @@ def linesToXML (narrative_lines, narrative_number, narrative_scores):
 		'THE INTERVIEWEE' : 'Respondent', 'PARTICIPANT' : 'Respondent', \
 		'ANSWER' : 'Respondent'}
 	
+	scenes_index_dict = ({'HIGH POINT': (0,1), 'LOW POINT':(2,3) , 
+		'TURNING POINT': (4,5)})
 	#Initialize all the tracking variables
 	first_scene = True
 	current_scene = ''
@@ -109,9 +111,16 @@ def linesToXML (narrative_lines, narrative_number, narrative_scores):
 				current_speaker  = 'Interviewer'
 			#Set the current scene
 			current_scene = line
+			agency_index = scenes_index_dict[current_scene.upper()][0]
+			communion_index = scenes_index_dict[current_scene.upper()][1]
+
+			#print(agency_index)
+			#print(narrative_scores)
 			#Add the next scene to our xml tree
 			narrative.append(etree.Element('scene', 
-				scene_name = current_scene.title()))
+				scene_name = current_scene.title(), 
+				scene_agency = narrative_scores[agency_index],
+				scene_communion = narrative_scores[communion_index]))
 		#if there's no colon then we dont know who is speaking
 		elif colon_index == -1 or not(line[:colon_index] in speakers_dict):
 			current_passage = current_passage + ' ' + line
@@ -139,7 +148,7 @@ def linesToXML (narrative_lines, narrative_number, narrative_scores):
 	addTextToCurrentScene(narrative, current_passage, current_speaker)
 	
 	#Prit it so that it looks pretty
-	#print(etree.tostring(narrative, pretty_print=True))		
+	print(etree.tostring(narrative, pretty_print=True))		
 	return narrative
 
 def saveXML (narrative_xml,narrative_number):
@@ -155,12 +164,12 @@ def saveXML (narrative_xml,narrative_number):
 
 def makeScoresDict():
 	scores = {}
-	high_agency_index = 1
-	high_communion_index = 2
-	low_agency_index = 6
-	low_communion_index = 7
-	turning_agency_index = 11
-	turning_communion_index = 12
+	ha_ind = 1
+	hc_ind = 2
+	la_ind = 6
+	lc_ind = 7
+	ta_ind = 11
+	tc_ind = 12
 
 	file_path = '/Volumes/Research/Adler Research/Sophia OSS Stuff/' \
 		'NarrativeScores.csv'
@@ -171,13 +180,15 @@ def makeScoresDict():
 
 	for row in data:
 		row_str = row[0]
-		print (row_str)
 		row_scores=row_str.split(',')
+		#print (row_scores)
 		num_narrative = row_scores[0]
 		file_name = str(num_narrative)
-		scores[file_name] = (row_scores[high_agency_index], row_scores[low_agency_index], row_scores[turning_agency_index])
+		scores[file_name] = (row_scores[ha_ind], row_scores[hc_ind],
+			row_scores[la_ind], row_scores[lc_ind], row_scores[ta_ind],
+			row_scores[tc_ind])
 
-	print (scores)
+	#print (scores)
 	return scores
 
 
@@ -200,8 +211,9 @@ def main():
 			clean_text = cleanText(narrative_text[1:])
 			#go from list of lines to xml
 			narrative_scores = scores[str(narrative_number)]
-			narrative = linesToXML(clean_text, narrative_number,narrative_scores)
-			#saveXML(narrative,narrative_number)
+			narrative = linesToXML(clean_text, narrative_number,
+				narrative_scores)
+			saveXML(narrative,narrative_number)
 
 
 
