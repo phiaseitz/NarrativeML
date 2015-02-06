@@ -72,7 +72,7 @@ def xmlToList(xml_response, coding_dimension):
 			int(scene_attributes[score_key])))
 	return narrative_responses
 
-def LoadNarrativeData(coding_dimension, first = 1, last = 164):
+def loadNarrativeData(coding_dimension, first = 1, last = 164):
 	all_responses_xml = getAllResponses(first,last)
 	data = []
 	for response in all_responses_xml:
@@ -92,7 +92,7 @@ def main():
 	# 	#Read the narrative
 	# 	narrative_xml = readNarrativeFile(narrative_number)
 	# 	responses_xml = getOnlyResponses(narrative_xml)
-	data = LoadNarrativeData('communion')
+	data = loadNarrativeData('communion')
 	print(data)
 
 if __name__ == '__main__':
