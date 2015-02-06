@@ -1,4 +1,5 @@
 import string
+import os 
 from lxml import etree
 
 def readNarrativeFile(narrative_number):
@@ -7,12 +8,25 @@ def readNarrativeFile(narrative_number):
 	file_name = 'FLSA_{narrative_num}.xml'.format(narrative_num =
 		str(narrative_number).zfill(3))
 	file_path = folder_path+file_name
-
-	narrative_xml = etree.parse(file_path)
 	
-	#print(etree.tostring(narrative_xml, pretty_print=True))
+	if os.path.isfile(file_path):
+		print ('reading narrative {narrative_num}'.format(
+			narrative_num = str(narrative_number)))
+		#Open the filse and read all the lines
+		narrative_xml = etree.parse(file_path)
+		return narrative_xml
+	#If there's not a file at the path, then either that number
+	#was skipped or I'm not connected to fsvs01
+	else:
+		if os.path.isdir(folder_path):
+			print ('Narrative {narrative_name} does not exist'.
+				format(narrative_name = file_name))
+		else:
+			print ('Are you connected to fsvs01 and have you' \
+			 'mounted the research drive?')
+		return None
 
-	return narrative_xml
+	#print(etree.tostring(narrative_xml, pretty_print=True))
 
 def getOnlyResponses(narrative_xml):
 	root = narrative_xml.getroot()
@@ -33,7 +47,7 @@ def getOnlyResponses(narrative_xml):
 		current_scene = responses_xml[-1]
 		current_scene.text = scene_responses
 
-	print(etree.tostring(responses_xml, pretty_print=True))
+	#print(etree.tostring(responses_xml, pretty_print=True))
 	return responses_xml
 
 def getAllResponses(first_narrative, last_narrative):
@@ -42,15 +56,18 @@ def getAllResponses(first_narrative, last_narrative):
 	for narrative_number in range(first_narrative,last_narrative + 1):
 		#Read the narrative
 		narrative_xml = readNarrativeFile(narrative_number)
-		responses_xml = getOnlyResponses(narrative_xml)
-		responses.append(responses_xml)
+		if not(narrative_xml is None):
+			responses_xml = getOnlyResponses(narrative_xml)
+			responses.append(responses_xml)
 	return responses
 def xmlToList(xml_response, coding_dimension):
 	#root = xml_response.getroot()
 	score_key = 'scene_'+coding_dimension
 	narrative_responses = []
+	#print (xml_response.attrib)
 	for scene in xml_response:
 		scene_attributes = scene.attrib
+		#print(scene_attributes)
 		narrative_responses.append((scene.text,
 			int(scene_attributes[score_key])))
 	return narrative_responses
@@ -75,7 +92,8 @@ def main():
 	# 	#Read the narrative
 	# 	narrative_xml = readNarrativeFile(narrative_number)
 	# 	responses_xml = getOnlyResponses(narrative_xml)
-	print(LoadNarrativeData('communion'))
+	data = LoadNarrativeData('communion')
+	print(data)
 
 if __name__ == '__main__':
 	main()
