@@ -4,9 +4,11 @@ import numpy
 
 
 def getModelData(data):
-	X = [1,2,3,4,5]
+	X_text = [narrative[0] for narrative in data]
 	y = numpy.array([narrative[1] for narrative in data])
-	print (y)
+
+	return X_text,y
+
 
 def main():
 	data = readnarratives.loadNarrativeData('agency')
