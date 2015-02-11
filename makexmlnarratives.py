@@ -42,7 +42,6 @@ def cleanText (narrative_lines):
 	#Get rid of new lines at the end of lines that do have text
 	for line in no_blank_lines:
 		clean_line = re.sub(r'\s*\n', '',line).decode('utf-8')
-
 		clean_lines.append(clean_line)
 	return clean_lines
 
@@ -194,8 +193,8 @@ def makeScoresDict():
 
 def main():
 	#Narratives to start and end at
-	first_narrative = 1
-	last_narrative = 164
+	first_narrative = 49
+	last_narrative = 49
 
 	scores = makeScoresDict()
 
@@ -213,7 +212,7 @@ def main():
 			narrative_scores = scores[str(narrative_number)]
 			narrative = linesToXML(clean_text, narrative_number,
 				narrative_scores)
-			saveXML(narrative,narrative_number)
+			#saveXML(narrative,narrative_number)
 
 
 
