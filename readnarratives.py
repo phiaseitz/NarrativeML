@@ -1,6 +1,33 @@
 import string
 import os 
+import pickle
 from lxml import etree
+
+
+def makePickle(text, scores,file_name):
+	folder_path = '/Volumes/Research/Adler Research/Sophia OSS Stuff/'
+	file_path = folder_path+file_name
+
+	data = (text,scores)
+
+	f = open(file_path, 'w')
+	pickle.dump(data, f)
+	f.close()
+
+	
+
+def readPickle(file_name):
+	folder_path = '/Volumes/Research/Adler Research/Sophia OSS Stuff/'
+	file_path = folder_path+file_name
+
+	f = open(file_path, 'r')
+	data = pickle.load(f)
+	f.close()
+	
+	texts = data[0]
+	scores = data[1]
+
+	return texts,scores
 
 def readNarrativeFile(narrative_number):
 	folder_path = '/Volumes/Research/Adler Research/Sophia OSS Stuff/' \
