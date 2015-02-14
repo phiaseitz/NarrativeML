@@ -10,7 +10,7 @@ def processText(text_data):
 		one_space = removeExtraSpaces(only_alpha_spaces)
 
 		stemmed_text = stemWords(one_space)
-		print (stemmed_text.lower())
+
 		clean_texts.append(stemmed_text.lower())
 	return clean_texts
 
@@ -36,8 +36,8 @@ def stemWords(text):
 		stemmed_text = stemmed_text + ' ' + stemmer.stem(word)
 	return stemmed_text
 
-def processAndPickle(file_name):
-	data = readnarratives.loadNarrativeData('agency', first = 49, last = 49)
+def processAndPickle(file_name, dimension = 'agency', first = 1, last = 130):
+	data = readnarratives.loadNarrativeData(dimension, first, last)
 	texts = [narrative[0] for narrative in data]
 	scores = [narrative[1] for narrative in data]
 
@@ -48,20 +48,14 @@ def processAndPickle(file_name):
 	text,score = readnarratives.readPickle(file_name)
 
 def main():
-	data = readnarratives.loadNarrativeData('agency', first = 49, last = 49)
-	texts = [narrative[0] for narrative in data]
-	scores = [narrative[1] for narrative in data]
+	
+	file_name = 'NarrativePickleAgency'
 
-	clean_texts = processText(texts)
-
-
-
-	file_name = 'NarrativePickle'
-
-	readnarratives.makePickle(clean_texts,scores, file_name)
+	processAndPickle(file_name, 'agency', 1, 130)
 
 	text,score = readnarratives.readPickle(file_name)
 
+	print score
 
 if __name__ == '__main__':
 	main()

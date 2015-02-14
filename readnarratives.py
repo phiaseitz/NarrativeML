@@ -14,8 +14,6 @@ def makePickle(text, scores,file_name):
 	pickle.dump(data, f)
 	f.close()
 
-	
-
 def readPickle(file_name):
 	folder_path = '/Volumes/Research/Adler Research/Sophia OSS Stuff/'
 	file_path = folder_path+file_name
@@ -23,7 +21,7 @@ def readPickle(file_name):
 	f = open(file_path, 'r')
 	data = pickle.load(f)
 	f.close()
-	
+
 	texts = data[0]
 	scores = data[1]
 

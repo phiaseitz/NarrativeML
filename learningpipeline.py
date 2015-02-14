@@ -1,38 +1,45 @@
 import readnarratives
 import numpy
 import re
+
+from sklearn.cross_validation import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.naive_bayes import MultinomialNB
 
+def tokenize(texts):
+	count_vect = CountVectorizer()
+	tokenized_texts = count_vect.fit_transform(texts)
 
-def bagOfWordsVector(text_data):
-	vectorizer = CountVectorizer(min_df=1,stop_words='english')
-	X = vectorizer.fit_transform(text_data)
-	print (vectorizer.get_feature_names())
-	return X
+	#print tokenized_texts.shape
 
-def getModelData(data):
-	texts = [narrative[0] for narrative in data]
-	y = numpy.array([narrative[1] for narrative in data])
+	tfidf_transformer = TfidfTransformer()
+	texts_tfidf = tfidf_transformer.fit_transform(tokenized_texts)
 
-	return texts,y
+	return texts_tfidf,count_vect
 
-def processText(text_data):
-	clean_text = []
-	for text in text_data:
-		clean_text.append(removeParentheses(text))
-	return clean_text
-
-def removeParentheses(text):
-	no_parentheses = re.sub(r'\s?\([^)]*\)', '', text)
-	return no_parentheses
+def mostInformativeFeatures(classifier, vectorizer, categories):
+	feature_names = numpy.asarray(vectorizer.get_feature_names())
+	for i, category in enumerate(categories):
+		top10 = numpy.argsort(classifier.coef_[i])[-10:]
+		print("%s: %s" % (category, " ".join(feature_names[top10])))
 
 def main():
-	data = readnarratives.loadNarrativeData('agency', first = 49, last = 49)
-	texts,y = getModelData(data)
-	clean_texts = processText(texts)
+	pickle_name = 'NarrativePickleAgency'
+	texts, scores = readnarratives.readPickle(pickle_name)
 
-	X = bagOfWordsVector(clean_texts)
-	print (X)
-	#print(removeParentheses('ajhflaskdjfh adjfhalskfj (adjfalskfjhas). adfhaljskdfh (ajsdhflkasdf)'))
+	texts_tfidf,vectorizer = tokenize(texts)
+	
+	X_train, X_test, y_train, y_test = train_test_split(
+		texts_tfidf, scores, test_size=0.33, random_state=42)
+
+	naive_bayes_model = MultinomialNB().fit(X_train, y_train)
+
+	predicted = naive_bayes_model.predict(X_test)
+	print('Accuracy: %f' % numpy.mean(predicted == y_test))
+
+	mostInformativeFeatures(naive_bayes_model, vectorizer,[0,1,2,3])
+
+
 if __name__ == '__main__':
 	main()
