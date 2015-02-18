@@ -6,14 +6,21 @@ import math
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.linear_model import SGDClassifier
-from sklearn.linear_model import Ridge
+from sklearn.linear_model import SGDClassifier, Ridge, RidgeCV
+from sklearn.linear_model import RidgeCV
 
-def mostInformativeFeatures(classifier, vectorizer, categories,number_of_features):
+def mostInformativeFeatures(classifier, vectorizer, 
+	categories,number_of_features):
 	feature_names = numpy.asarray(vectorizer.get_feature_names())
 	for i, category in enumerate(categories):
 		top = numpy.argsort(classifier.coef_[i])[-number_of_features:]
 		print("%s: %s" % (category, " ".join(feature_names[top])))
+
+def mostInformativeFeaturesRegression (classifier, vectorizer,
+	number_of_features):
+	feature_names = numpy.asarray(vectorizer.get_feature_names())
+	top = numpy.argsort(classifier.coef_)[-number_of_features:]
+	print("All Categories: %s" % " ".join(feature_names[top]))
 
 
 def splitTestTrain(X,y, train_size = 0.66, random_state = 42):
@@ -75,7 +82,7 @@ def main():
 
 	reliability_nb = scipy.stats.pearsonr(predicted_nb,y_test)
 
-	print (reliability_nb)
+	print ('Accuracy: %f' % reliability_nb[0])
 	#Support vector
 	print('\nSupport Vector Machine \n')
 
@@ -89,27 +96,32 @@ def main():
 	print y_test
 	print predicted_svm
 
-	print('Accuracy: %f' % numpy.mean(predicted_svm == y_test))
+	#print('Accuracy: %f' % numpy.mean(predicted_svm == y_test))
 
 	mostInformativeFeatures(support_vector_model, count_vect,[0,1,2,3],15)
 	
 	reliability_svm = scipy.stats.pearsonr(predicted_svm,y_test)
 
-	print (reliability_svm)
+	print ('Accuracy: %f' % reliability_svm[0])
 
 	#Ridge Regression
 	print('\nRidge Regression \n')
-	ridge_model = Ridge(alpha=10.0)
+	ridge_model = Ridge(alpha = 10)
 	ridge_model.fit(X_train_tfidf,y_train)
 
 	predicted_ridge = ridge_model.predict(X_test_tfidf)
 
+	#print(ridge_model.alpha_)
 	print y_test
 	print predicted_ridge
-
 	reliability_ridge = scipy.stats.pearsonr(predicted_ridge,y_test)
 
-	print(reliability_ridge)
+	#print(ridge_model.coef_)
+
+	mostInformativeFeaturesRegression(ridge_model, count_vect,15)
+
+	print('Accuracy: %f' % reliability_ridge[0])
+
 
 
 
