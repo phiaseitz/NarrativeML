@@ -31,12 +31,13 @@ def removeExtraSpaces(text):
 def stemWords(text):
 	words = text.split(' ')
 	stemmed_text = ''
-	stemmer = nltk.stem.porter.PorterStemmer()
+	stemmer = nltk.stem.snowball.SnowballStemmer("english", ignore_stopwords=True)
+	#stemmer = nltk.stem.porter.PorterStemmer()
 	for word in words:
 		stemmed_text = stemmed_text + ' ' + stemmer.stem(word)
 	return stemmed_text
 
-def processAndPickle(file_name, dimension = 'agency', first = 1, last = 130):
+def processAndPickle(file_name, dimension = 'agency', first = 1, last = 140):
 	data = readnarratives.loadNarrativeData(dimension, first, last)
 	texts = [narrative[0] for narrative in data]
 	scores = [narrative[1] for narrative in data]
@@ -51,7 +52,7 @@ def main():
 	
 	file_name = 'NarrativePickleAgency'
 
-	processAndPickle(file_name, 'agency', 1, 130)
+	processAndPickle(file_name, 'agency', 1, 140)
 
 	text,score = readnarratives.readPickle(file_name)
 

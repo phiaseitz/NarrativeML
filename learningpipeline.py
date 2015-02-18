@@ -6,8 +6,8 @@ import math
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
-
 from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import Ridge
 
 def mostInformativeFeatures(classifier, vectorizer, categories,number_of_features):
 	feature_names = numpy.asarray(vectorizer.get_feature_names())
@@ -47,7 +47,9 @@ def main():
 	X_train, X_test, y_train, y_test = splitTestTrain(
 		texts, scores, 0.66, 42)
 
-	count_vect = CountVectorizer()
+	count_vect = CountVectorizer(stop_words = "english")
+	#count_vect = CountVectorizer()
+
 	X_train_count = count_vect.fit_transform(X_train)
 
 	tfidf_transformer = TfidfTransformer()
@@ -59,7 +61,8 @@ def main():
 	
 	#Naive Bayes - I'm not sure but this might not work so well
 		#always predicts 1...
-	print ('Naive Bayes')
+	print ('\nNaive Bayes \n')
+	#naive_bayes_model = BernoulliNB().fit(X_train_tfidf, y_train)
 	naive_bayes_model = MultinomialNB().fit(X_train_tfidf, y_train)
 
 	predicted_nb = naive_bayes_model.predict(X_test_tfidf)
@@ -68,13 +71,16 @@ def main():
 	print y_test
 	print predicted_nb
 
-	mostInformativeFeatures(naive_bayes_model, count_vect,[0,1,2,3],10)
+	mostInformativeFeatures(naive_bayes_model, count_vect,[0,1,2,3],15)
 
+	reliability_nb = scipy.stats.pearsonr(predicted_nb,y_test)
+
+	print (reliability_nb)
 	#Support vector
-	print('Support Vector Machine')
+	print('\nSupport Vector Machine \n')
 
 	support_vector_model = SGDClassifier(loss='hinge', penalty='l2',
-		alpha=1e-3, n_iter=5)
+		alpha=1e-3, n_iter=4)
 
 	support_vector_model.fit(X_train_tfidf, y_train)
 
@@ -85,12 +91,25 @@ def main():
 
 	print('Accuracy: %f' % numpy.mean(predicted_svm == y_test))
 
-	mostInformativeFeatures(support_vector_model, count_vect,[0,1,2,3],10)
+	mostInformativeFeatures(support_vector_model, count_vect,[0,1,2,3],15)
 	
-	reliability = scipy.stats.pearsonr(predicted_svm,y_test)
+	reliability_svm = scipy.stats.pearsonr(predicted_svm,y_test)
 
-	print (reliability)
+	print (reliability_svm)
 
+	#Ridge Regression
+	print('\nRidge Regression \n')
+	ridge_model = Ridge(alpha=10.0)
+	ridge_model.fit(X_train_tfidf,y_train)
+
+	predicted_ridge = ridge_model.predict(X_test_tfidf)
+
+	print y_test
+	print predicted_ridge
+
+	reliability_ridge = scipy.stats.pearsonr(predicted_ridge,y_test)
+
+	print(reliability_ridge)
 
 
 
