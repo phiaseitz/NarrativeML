@@ -1,4 +1,5 @@
 import readnarratives
+import visualizeresults
 import numpy
 import random
 import scipy
@@ -6,7 +7,7 @@ import math
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.linear_model import SGDClassifier, Ridge, RidgeCV
+from sklearn.linear_model import SGDClassifier,Ridge,RidgeCV,LinearRegression
 from sklearn.linear_model import RidgeCV
 
 def mostInformativeFeatures(classifier, vectorizer, 
@@ -14,14 +15,15 @@ def mostInformativeFeatures(classifier, vectorizer,
 	feature_names = numpy.asarray(vectorizer.get_feature_names())
 	for i, category in enumerate(categories):
 		top = numpy.argsort(classifier.coef_[i])[-number_of_features:]
-		print("%s: %s" % (category, " ".join(feature_names[top])))
+		print("%s: %s" % (category, ", ".join(feature_names[top])))
 
 def mostInformativeFeaturesRegression (classifier, vectorizer,
 	number_of_features):
 	feature_names = numpy.asarray(vectorizer.get_feature_names())
-	top = numpy.argsort(classifier.coef_)[-number_of_features:]
-	print("All Categories: %s" % " ".join(feature_names[top]))
-
+	top_pos = numpy.argsort(classifier.coef_)[-number_of_features:]
+	top_neg = numpy.argsort(-classifier.coef_)[-number_of_features:]
+	print("Top Positive: %s" % ", ".join(feature_names[top_pos]))
+	print("Top Negative: %s" % ", ".join(feature_names[top_neg])) 
 
 def splitTestTrain(X,y, train_size = 0.66, random_state = 42):
 	#Making my own so I can split text!
@@ -55,6 +57,8 @@ def main():
 		texts, scores, 0.66, 42)
 
 	count_vect = CountVectorizer(stop_words = "english")
+	#count_vect = CountVectorizer(ngram_range=(1, 2),stop_words = "english")
+	#count_vect = CountVectorizer(ngram_range=(1, 2))
 	#count_vect = CountVectorizer()
 
 	X_train_count = count_vect.fit_transform(X_train)
@@ -66,47 +70,47 @@ def main():
 	X_test_tfidf = tfidf_transformer.transform(X_test_count)
 	
 	
-	#Naive Bayes - I'm not sure but this might not work so well
-		#always predicts 1...
-	print ('\nNaive Bayes \n')
-	#naive_bayes_model = BernoulliNB().fit(X_train_tfidf, y_train)
-	naive_bayes_model = MultinomialNB().fit(X_train_tfidf, y_train)
+	# #Naive Bayes - I'm not sure but this might not work so well
+	# 	#always predicts 1...
+	# print ('\nNaive Bayes \n')
+	# #naive_bayes_model = BernoulliNB().fit(X_train_tfidf, y_train)
+	# naive_bayes_model = MultinomialNB().fit(X_train_tfidf, y_train)
 
-	predicted_nb = naive_bayes_model.predict(X_test_tfidf)
-	print('Accuracy: %f' % numpy.mean(predicted_nb == y_test))
+	# predicted_nb = naive_bayes_model.predict(X_test_tfidf)
+	# print('Accuracy: %f' % numpy.mean(predicted_nb == y_test))
 
-	print y_test
-	print predicted_nb
+	# print y_test
+	# print predicted_nb
 
-	mostInformativeFeatures(naive_bayes_model, count_vect,[0,1,2,3],15)
+	# mostInformativeFeatures(naive_bayes_model, count_vect,[0,1,2,3],15)
 
-	reliability_nb = scipy.stats.pearsonr(predicted_nb,y_test)
+	# reliability_nb = scipy.stats.pearsonr(predicted_nb,y_test)
 
-	print ('Accuracy: %f' % reliability_nb[0])
-	#Support vector
-	print('\nSupport Vector Machine \n')
+	# #print ('Accuracy: %f' % reliability_nb[0])
+	# #Support vector
+	# print('\nSupport Vector Machine \n')
 
-	support_vector_model = SGDClassifier(loss='hinge', penalty='l2',
-		alpha=1e-3, n_iter=4)
+	# support_vector_model = SGDClassifier(loss='hinge', penalty='l2',
+	# 	alpha=1e-3, n_iter=4)
 
-	support_vector_model.fit(X_train_tfidf, y_train)
+	# support_vector_model.fit(X_train_tfidf, y_train)
 
-	predicted_svm = support_vector_model.predict(X_test_tfidf)
+	# predicted_svm = support_vector_model.predict(X_test_tfidf)
 	
-	print y_test
-	print predicted_svm
+	# print y_test
+	# print predicted_svm
 
-	#print('Accuracy: %f' % numpy.mean(predicted_svm == y_test))
+	# #print('Accuracy: %f' % numpy.mean(predicted_svm == y_test))
 
-	mostInformativeFeatures(support_vector_model, count_vect,[0,1,2,3],15)
+	# mostInformativeFeatures(support_vector_model, count_vect,[0,1,2,3],15)
 	
-	reliability_svm = scipy.stats.pearsonr(predicted_svm,y_test)
+	# reliability_svm = scipy.stats.pearsonr(predicted_svm,y_test)
 
-	print ('Accuracy: %f' % reliability_svm[0])
+	#print ('Accuracy: %f' % reliability_svm[0])
 
 	#Ridge Regression
 	print('\nRidge Regression \n')
-	ridge_model = Ridge(alpha = 10)
+	ridge_model = Ridge(alpha = 10) #When only doing bag of words, 10 is good
 	ridge_model.fit(X_train_tfidf,y_train)
 
 	predicted_ridge = ridge_model.predict(X_test_tfidf)
@@ -119,10 +123,35 @@ def main():
 	#print(ridge_model.coef_)
 
 	mostInformativeFeaturesRegression(ridge_model, count_vect,15)
+	print(ridge_model.score(X_test_tfidf,y_test))
+	#print('Accuracy: %f' % reliability_ridge[0])
 
-	print('Accuracy: %f' % reliability_ridge[0])
+	i = 1
 
+	split_list = X_train[i].split(' ')
+	#print (X_train_tfidf[i,:])
 
+	visualizeresults.getWeights(X_train[i],X_train_tfidf[i,:]
+		,count_vect,ridge_model)
+
+	# #Linear Regresssion
+
+	# print('\nLinear Regression \n')
+	# linear_model = LinearRegression()
+	# linear_model.fit(X_train_tfidf,y_train)
+
+	# predicted_linear = linear_model.predict(X_test_tfidf)
+
+	# #print(ridge_model.alpha_)
+	# print y_test
+	# print predicted_linear
+	# reliability_linear = scipy.stats.pearsonr(predicted_linear,y_test)
+
+	# #print(ridge_model.coef_)
+
+	# mostInformativeFeaturesRegression(linear_model, count_vect,15)
+
+	# #print('Accuracy: %f' % reliability_linear[0])
 
 
 if __name__ == '__main__':

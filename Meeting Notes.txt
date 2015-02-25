@@ -1,0 +1,20 @@
+Questions
+
+Am I trying to classify text, or would it be more helpful for me to predict a score bucket, and just say that like a 1.5 is a 1?
+
+most informative features, naive bayes, also predicting all ones?
+
+
+ridge regression correlation coefficient - for error stuff
+s
+n-grams
+
+code sentences
+
+go word by word figure out how much it contributes to tfidf vector and multiply by coefficient
+
+color words by coefficient
+
+multiple instance learning
+
+ridge cv
