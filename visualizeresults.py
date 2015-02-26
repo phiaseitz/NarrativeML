@@ -56,6 +56,15 @@ def getWeights(scene_text, scene_vector,vectorizer,classifier):
 		classifier)
 	return getWeightsFromDict(scene_text,weights_dict)
 
+def visualizeWeights(scene_text, scene_vector,vectorizer,classifier):
+	split_list = scene_text.split(' ')
+	split_list_ascii = [word.encode('ascii','ignore') for word in split_list]
+	clean_split_list_ascii = [word for word in split_list_ascii if word != '']
+
+	weights = getWeights(clean_split_list_ascii,scene_vector,vectorizer,
+		classifier)
+	printColored(clean_split_list_ascii,weights)
+
 def main():
 	words = ['hi','hi','hi','hi','hi','hi','hi','hi','hi','hi','hi','hi']
 	weights = numpy.linspace(0,10,len(words))
