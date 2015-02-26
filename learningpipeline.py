@@ -126,13 +126,17 @@ def main():
 	print(ridge_model.score(X_test_tfidf,y_test))
 	#print('Accuracy: %f' % reliability_ridge[0])
 
-	i = 1
+	i = 2
 
 	split_list = X_train[i].split(' ')
-	#print (X_train_tfidf[i,:])
+	split_list_ascii = [word.encode('ascii','ignore') for word in split_list]
+	clean_split_list_ascii = [word for word in split_list_ascii if word != '']
+	print (clean_split_list_ascii)
 
-	visualizeresults.getWeights(X_train[i],X_train_tfidf[i,:]
+	weights = visualizeresults.getWeights(clean_split_list_ascii,X_train_tfidf[i,:]
 		,count_vect,ridge_model)
+
+	visualizeresults.printColored(clean_split_list_ascii,weights)
 
 	# #Linear Regresssion
 

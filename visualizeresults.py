@@ -9,7 +9,7 @@ def normalizeWeights(weights):
 
 
 def findHighlight(weight):
-	highlights=['on_blue','on_cyan','on_green','on_yellow','on_magenta','on_red']
+	highlights=['on_green','on_cyan','on_blue','on_magenta', 'on_red']
 	weight_ranges = numpy.linspace(0,1,len(highlights)+1)
 	weight_ranges = weight_ranges[1:]
 
@@ -32,21 +32,28 @@ def createWeightsDictionary(scene_text, scene_vector,vectorizer,classifier):
 
 	for i in range(vec_shape[1]):
 		feature_name = feature_names[i]
-		print (feature_name)
-		feature_weights_dict[feature_name.encode('ascii','ignore')] = classifier.coef_[i]
-	print feature_weights_dict
+		#print (feature_name)
+		feature_weights_dict[feature_name.encode('ascii','ignore')] = \
+		 classifier.coef_[i]
+	#print feature_weights_dict
 	return feature_weights_dict
 
 def getWeightsFromDict(text,weights_dict):
 	weights = []
 	for word in text:
-		weights.append(weights_dict[word])
+		try:
+			#The word is in the dictionary
+			weights.append(weights_dict[word])
+		except:
+			#The word is not in the dictionariy
+			weights.append(0.0)
 
 
 	return numpy.array(weights)
 
 def getWeights(scene_text, scene_vector,vectorizer,classifier):
-	weights_dict = createWeightsDictionary(scene_text, scene_vector,vectorizer,classifier)
+	weights_dict = createWeightsDictionary(scene_text, scene_vector,vectorizer,
+		classifier)
 	return getWeightsFromDict(scene_text,weights_dict)
 
 def main():
