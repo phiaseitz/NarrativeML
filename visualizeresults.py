@@ -1,6 +1,8 @@
 from termcolor import colored, cprint
 import numpy
 
+#Shift the weights so that they're between 0 and 1 (so that it's easier to 
+#	print)
 def normalizeWeights(weights):
 	min_weight = min(weights)
 	weights_pos = numpy.subtract(weights,min_weight)
@@ -8,6 +10,7 @@ def normalizeWeights(weights):
 	return weights_pos/max_weight
 
 
+#For each any given weight, determine the color
 def findHighlight(weight):
 	highlights=['on_green','on_cyan','on_blue','on_magenta', 'on_red']
 	weight_ranges = numpy.linspace(0,1,len(highlights)+1)
@@ -18,12 +21,15 @@ def findHighlight(weight):
 			return highlight
 	return highlights[-1]
 
+
+#Given words and weights, print out the highlighted text
 def printColored(text,weights):
 	weights =  normalizeWeights(weights)
 	for index,word in enumerate(text):
 		highlight = findHighlight(weights[index])
 		cprint(word,'white',highlight,end = " ")
 
+#For all the words in the classifier, create a dictionary of word to weights
 def createWeightsDictionary(scene_text, scene_vector,vectorizer,classifier):
 	feature_names = numpy.asarray(vectorizer.get_feature_names())
 	#print (feature_names)
@@ -38,24 +44,31 @@ def createWeightsDictionary(scene_text, scene_vector,vectorizer,classifier):
 	#print feature_weights_dict
 	return feature_weights_dict
 
-def getWeightsFromDict(text,weights_dict):
+#Now, compute the real weight for each word by multiplying by the 
+#	corresponding value in the TFIDF vector
+def getWeightsFromDict(text,scene_vector,vectorizer, weights_dict):
 	weights = []
-	for word in text:
+	word_to_index = dict(zip(vectorizer.get_feature_names(), range(len(vectorizer.get_feature_names()))))
+	for i in range(len(text)):
 		try:
 			#The word is in the dictionary
-			weights.append(weights_dict[word])
+			#print scene_vector[i]
+			weights.append(weights_dict[text[i]]*scene_vector[0,word_to_index[text[i]]])
+			#weights.append(weights_dict[text[i]])
 		except:
 			#The word is not in the dictionariy
 			weights.append(0.0)
 
-
+	#print weights
 	return numpy.array(weights)
 
+#Combines the two above functions
 def getWeights(scene_text, scene_vector,vectorizer,classifier):
 	weights_dict = createWeightsDictionary(scene_text, scene_vector,vectorizer,
 		classifier)
-	return getWeightsFromDict(scene_text,weights_dict)
+	return getWeightsFromDict(scene_text,scene_vector,vectorizer, weights_dict)
 
+#Given text, vectors, vectorizer, and classifier, print in colors!
 def visualizeWeights(scene_text, scene_vector,vectorizer,classifier):
 	split_list = scene_text.split(' ')
 	split_list_ascii = [word.encode('ascii','ignore') for word in split_list]

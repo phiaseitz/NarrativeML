@@ -4,6 +4,8 @@ import numpy
 import random
 import scipy
 import math
+import logisticordinalregression
+from sklearn import metrics
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
@@ -56,10 +58,10 @@ def main():
 	X_train, X_test, y_train, y_test = splitTestTrain(
 		texts, scores, 0.66, 42)
 
-	count_vect = CountVectorizer(stop_words = "english")
+	#count_vect = CountVectorizer(stop_words = "english")
 	#count_vect = CountVectorizer(ngram_range=(1, 2),stop_words = "english")
 	#count_vect = CountVectorizer(ngram_range=(1, 2))
-	#count_vect = CountVectorizer()
+	count_vect = CountVectorizer()
 
 	X_train_count = count_vect.fit_transform(X_train)
 
@@ -126,11 +128,21 @@ def main():
 	print(ridge_model.score(X_test_tfidf,y_test))
 	#print('Accuracy: %f' % reliability_ridge[0])
 
-	i = 1
+	i = 3
 
-	visualizeresults.visualizeWeights(X_train[i],X_train_tfidf[i,:]
+	visualizeresults.visualizeWeights(X_test[i],X_test_tfidf[i,:]
 		,count_vect,ridge_model)
-	print(y_train[i])
+	print(y_test[i])
+
+	
+
+	# w, theta = logisticordinalregression.ordinal_logistic_fit(X_train_tfidf,
+	# 	y_train, verbose=True, solver='TNC')
+	# pred = logisticordinalregression.ordinal_logistic_predict(w, theta, 
+	# 	X_test_tfidf)
+ #        s = metrics.mean_absolute_error(y_test, pred)
+ #        print('ERROR (ORDINAL)  fold %s: %s' % (i+1, s))
+ #        score_ordinal_logistic.append(s)
 
 	# #Linear Regresssion
 
