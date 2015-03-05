@@ -67,10 +67,11 @@ def main():
 
 	tfidf_transformer = TfidfTransformer()
 	X_train_tfidf = tfidf_transformer.fit_transform(X_train_count)
+	X_train_tfidf_a = tfidf_transformer.fit_transform(X_train_count).toarray()
 
 	X_test_count = count_vect.transform(X_test)
 	X_test_tfidf = tfidf_transformer.transform(X_test_count)
-	
+	X_test_tfidf_a = tfidf_transformer.transform(X_test_count).toarray()
 	
 	# #Naive Bayes - I'm not sure but this might not work so well
 	# 	#always predicts 1...
@@ -128,21 +129,30 @@ def main():
 	print(ridge_model.score(X_test_tfidf,y_test))
 	#print('Accuracy: %f' % reliability_ridge[0])
 
-	i = 3
+	# i = 3
 
-	visualizeresults.visualizeWeights(X_test[i],X_test_tfidf[i,:]
-		,count_vect,ridge_model)
-	print(y_test[i])
+	# visualizeresults.visualizeWeights(X_test[i],X_test_tfidf[i,:]
+	# 	,count_vect,ridge_model)
+	# print(y_test[i])
 
-	
+	to_print = range(len(X_test))
 
-	# w, theta = logisticordinalregression.ordinal_logistic_fit(X_train_tfidf,
+	visualizeresults.visualizeWeightsList(to_print, X_test,X_test_tfidf,
+		y_test, count_vect,ridge_model)
+
+#Logistic ordinal regression
+	# w, theta = logisticordinalregression.ordinal_logistic_fit(
+		#X_train_tfidf_a,
 	# 	y_train, verbose=True, solver='TNC')
 	# pred = logisticordinalregression.ordinal_logistic_predict(w, theta, 
-	# 	X_test_tfidf)
+	# 	X_test_tfidf_a)
  #        s = metrics.mean_absolute_error(y_test, pred)
+
+ #        print (pred)
+ #        print (y_test)
  #        print('ERROR (ORDINAL)  fold %s: %s' % (i+1, s))
- #        score_ordinal_logistic.append(s)
+        
+
 
 	# #Linear Regresssion
 
