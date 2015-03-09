@@ -1,6 +1,7 @@
 import string
 import os 
 import pickle
+import re
 from lxml import etree
 
 
@@ -39,6 +40,7 @@ def readNarrativeFile(narrative_number):
 			narrative_num = str(narrative_number)))
 		#Open the filse and read all the lines
 		narrative_xml = etree.parse(file_path)
+		#print(etree.tostring(narrative_xml, pretty_print=True))
 		return narrative_xml
 	#If there's not a file at the path, then either that number
 	#was skipped or I'm not connected to fsvs01
@@ -53,57 +55,55 @@ def readNarrativeFile(narrative_number):
 
 	#print(etree.tostring(narrative_xml, pretty_print=True))
 
-def getOnlyResponses(narrative_xml):
+def responsesList(narrative_xml,coding_dimension):
 	root = narrative_xml.getroot()
 	root_attributes = root.attrib
 	responses_xml = etree.Element("narrative", 
 		narrative_num = root_attributes['narrative_num'])
+	scenes = []
+	examples =[]
 	for scene in root:
-		scene_attributes = scene.attrib
-		responses_xml.append(etree.Element('scene', 
-				scene_name = scene_attributes['scene_name'], 
-				scene_agency = scene_attributes['scene_agency'],
-				scene_communion = scene_attributes['scene_agency']))
+		scene_attributes = scene.attrib 
+		scene_score = scene_attributes['scene_' + coding_dimension]
 		scene_responses = ''
 		for passage in scene:
 			passage_attributes = passage.attrib
 			if passage_attributes['speaker'] == 'Respondent':
-				scene_responses = scene_responses + ' ' + passage.text
-		current_scene = responses_xml[-1]
-		current_scene.text = scene_responses
+				passage_string = etree.tostring(passage,pretty_print = True)
+				passage_text = re.sub(r'</*passage[^>]*>','',passage_string)
+				
+				examples_strings = re.findall(r'<example .* </example>',
+					passage_text)
+
+				for example in examples_strings:
+					example_score = re.search(r'"\d"',example)
+					example_score = example_score.group()
+					example_score_int = int(example_score[1])
+
+					example_text = re.sub(r'</*example[^>]*>','',example)
+					
+					#print example_text
+					#print example_score
+					examples.append((example_text,example_score_int))
+				passage_text = re.sub(r'</*example[^>]*>','',passage_text)
+				scene_responses = scene_responses + ' ' + passage_text
+		scenes.append((scene_responses,int(scene_score)))			
 
 	#print(etree.tostring(responses_xml, pretty_print=True))
-	return responses_xml
+	#print examples
+	#print scenes
+	return scenes+examples
 
-def getAllResponses(first_narrative, last_narrative):
-	responses = []
-	#Loop through all the narratives
-	for narrative_number in range(first_narrative,last_narrative + 1):
+def loadNarrativeData(coding_dimension, first = 1, last = 164):
+	all_responses = []
+	for narrative_number in range(first,last + 1):
+		print narrative_number
 		#Read the narrative
 		narrative_xml = readNarrativeFile(narrative_number)
 		if not(narrative_xml is None):
-			responses_xml = getOnlyResponses(narrative_xml)
-			responses.append(responses_xml)
-	return responses
-def xmlToList(xml_response, coding_dimension):
-	#root = xml_response.getroot()
-	score_key = 'scene_'+coding_dimension
-	narrative_responses = []
-	#print (xml_response.attrib)
-	for scene in xml_response:
-		scene_attributes = scene.attrib
-		#print(scene_attributes)
-		narrative_responses.append((scene.text,
-			int(scene_attributes[score_key])))
-	return narrative_responses
-
-def loadNarrativeData(coding_dimension, first = 1, last = 164):
-	all_responses_xml = getAllResponses(first,last)
-	data = []
-	for response in all_responses_xml:
-		response_data = xmlToList(response, coding_dimension)
-		data = data + response_data
-	return data
+			responses = responsesList(narrative_xml,coding_dimension)
+			all_responses = all_responses + responses
+	return all_responses
 
 def main():
 	# #Narratives to start and end at
@@ -117,8 +117,8 @@ def main():
 	# 	#Read the narrative
 	# 	narrative_xml = readNarrativeFile(narrative_number)
 	# 	responses_xml = getOnlyResponses(narrative_xml)
-	data = loadNarrativeData('communion')
-	print(data)
+	data = loadNarrativeData('agency',132,132)
+	#print(data)
 
 if __name__ == '__main__':
 	main()

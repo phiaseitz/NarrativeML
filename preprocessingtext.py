@@ -56,7 +56,10 @@ def main():
 
 	text,score = readnarratives.readPickle(file_name)
 
+	print text
+	print len(text)
 	print score
+	print len(score)
 
 if __name__ == '__main__':
 	main()
