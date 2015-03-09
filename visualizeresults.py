@@ -13,7 +13,7 @@ def normalizeWeightsList (weights_list):
 	#I think that actual weights are positive and negative, so zero is a 
 	#good starting point. We'll see
 
-	print weights_list
+	#print weights_list
 
 	min_weight = 0
 	max_weight = 0
@@ -23,9 +23,9 @@ def normalizeWeightsList (weights_list):
 		if max(weights) > max_weight:
 			max_weight = max(weights)
 		if min(weights) < min_weight:
-			min_weight - min(weights)
-	print min_weight
-	print max_weight
+			min_weight = min(weights)
+	#print min_weight
+	#print max_weight
 
 	#Shift so that everything is between 0 and 1
 	normalized_weights_list = []
@@ -63,7 +63,7 @@ def createWeightsDictionary(vectorizer,classifier):
 	feature_weights_dict = {}
 	vec_shape = classifier.coef_.shape
 
-	print(vec_shape)
+	#print(vec_shape)
 
 	for i in range(vec_shape[0]):
 		feature_name = feature_names[i]
@@ -89,9 +89,9 @@ def getWeightsFromDict(text,scene_vector,vectorizer, weights_dict):
 		except:
 			#The word is not in the dictionary
 			weights.append(0)
-			print(text[i])
+			#print([text[i]])
 
-	#print weights
+	#print 
 	return numpy.array(weights)
 
 #Combines the two above functions
@@ -135,6 +135,16 @@ def visualizeWeightsList(to_print, texts, vectors, scores,
 	for i in to_print:
 		printColored(scene_word_list[i],normalized_weights[i])
 		print ('\n Score: %i' %scores[i])
+
+def printKey ():
+	highlights=['on_green','on_cyan','on_blue','on_magenta', 'on_red']
+	values = ['lowest', 'low', 'middle', 'high', 'highest']
+	print ('Key :')
+
+	for i in range(len(highlights)):
+		cprint(values[i],'white',highlights[i])
+
+
 
 def main():
 	words = ['hi','hi','hi','hi','hi','hi','hi','hi','hi','hi','hi','hi']

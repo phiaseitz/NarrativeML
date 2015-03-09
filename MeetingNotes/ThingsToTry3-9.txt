@@ -1,0 +1,4 @@
+L1 regularized regression - elastic net
+keep looking into parsing XML
+
+also look for non-agency phrases - probably don't score them 1.5 maybe -1
