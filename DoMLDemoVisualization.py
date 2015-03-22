@@ -55,7 +55,8 @@ def main():
 	#count_vect = CountVectorizer(stop_words = "english")
 	#count_vect = CountVectorizer(ngram_range=(1, 2),stop_words = "english")
 	#count_vect = CountVectorizer(ngram_range=(1, 2))
-	count_vect = CountVectorizer()
+	count_vect = CountVectorizer(token_pattern = r'\w*')
+	#count_vect = CountVectorizer()
 
 	X_train_count = count_vect.fit_transform(X_train)
 
@@ -88,7 +89,7 @@ def main():
 
 	raw_input("Press Enter to continue...")
 
-	to_print = [0,1,2,3]
+	to_print = [0,1,8]
 
 	visualizeresults.visualizeWeightsList(to_print, X_test,X_test_tfidf,
 		y_test, count_vect,ridge_model)

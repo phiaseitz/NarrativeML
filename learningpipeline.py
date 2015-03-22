@@ -61,7 +61,8 @@ def main():
 	#count_vect = CountVectorizer(stop_words = "english")
 	#count_vect = CountVectorizer(ngram_range=(1, 2),stop_words = "english")
 	#count_vect = CountVectorizer(ngram_range=(1, 2))
-	count_vect = CountVectorizer()
+	#count_vect = CountVectorizer()
+	count_vect = CountVectorizer(token_pattern = r'\w*')
 
 	X_train_count = count_vect.fit_transform(X_train)
 
@@ -80,14 +81,15 @@ def main():
 	naive_bayes_model = MultinomialNB().fit(X_train_tfidf, y_train)
 
 	predicted_nb = naive_bayes_model.predict(X_test_tfidf)
-	print('Accuracy: %f' % numpy.mean(predicted_nb == y_test))
+	#print('Accuracy: %f' % numpy.mean(predicted_nb == y_test))
 
 	print y_test
 	print predicted_nb
 
 	mostInformativeFeatures(naive_bayes_model, count_vect,[0,1,2,3],15)
 
-	reliability_nb = scipy.stats.pearsonr(predicted_nb,y_test)
+	#reliability_nb = scipy.stats.pearsonr(predicted_nb,y_test)
+	print(naive_bayes_model.score(X_test_tfidf,y_test))
 
 	#print ('Accuracy: %f' % reliability_nb[0])
 	#Support vector
@@ -109,7 +111,8 @@ def main():
 	
 	reliability_svm = scipy.stats.pearsonr(predicted_svm,y_test)
 
-	print ('Accuracy: %f' % reliability_svm[0])
+	#print ('Accuracy: %f' % reliability_svm[0])
+	print(support_vector_model.score(X_test_tfidf,y_test))
 
 	#Ridge Regression
 	print('\nRidge Regression \n')
@@ -170,25 +173,26 @@ def main():
 	#print(ridge_model.coef_)
 
 	mostInformativeFeaturesRegression(linear_model, count_vect,15)
+	print(linear_model.score(X_test_tfidf,y_test))
 
 	#print('Accuracy: %f' % reliability_linear[0])
 
-		#Linear Regresssion
+	# 	#Linear Regresssion
 
-	print('\n Logistic Regression \n')
-	logistic_model = LogisticRegression(penalty = 'l1')
-	logistic_model.fit(X_train_tfidf,y_train)
+	# print('\n Logistic Regression \n')
+	# logistic_model = LogisticRegression(penalty = 'l1')
+	# logistic_model.fit(X_train_tfidf,y_train)
 
-	predicted_logistic = linear_model.predict(X_test_tfidf)
+	# predicted_logistic = linear_model.predict(X_test_tfidf)
 
-	print y_test
-	print predicted_linear
+	# print y_test
+	# print predicted_linear
 
-	print(logistic_model.score(X_test_tfidf,y_test))
+	# print(logistic_model.score(X_test_tfidf,y_test))
 
-	mostInformativeFeatures(logistic_model, count_vect,[0,1,2,3],15)
+	# mostInformativeFeatures(logistic_model, count_vect,[0,1,2,3],15)
 
-	#print('Accuracy: %f' % reliability_linear[0])
+	# #print('Accuracy: %f' % reliability_linear[0])
 
 
 if __name__ == '__main__':

@@ -15,8 +15,8 @@ def normalizeWeightsList (weights_list):
 
 	#print weights_list
 
-	min_weight = 0
-	max_weight = 0
+	min_weight = 1
+	max_weight = -1
 
 	#Find min and max
 	for weights in weights_list:
