@@ -37,6 +37,16 @@ def stemWords(text):
 		stemmed_text = stemmed_text + ' ' + stemmer.stem(word)
 	return stemmed_text
 
+def discardBlanks (texts, scores):
+	new_texts = []
+	new_scores = []
+	for i,text in enumerate(texts):
+		if text != '':
+			new_texts.append(text)
+			new_scores.append(scores[i])
+	return new_texts,new_scores
+
+
 def processAndPickle(file_name, dimension = 'agency', first = 1, last = 140):
 	data = readnarratives.loadNarrativeData(dimension, first, last)
 	texts = [narrative[0] for narrative in data]
@@ -44,7 +54,9 @@ def processAndPickle(file_name, dimension = 'agency', first = 1, last = 140):
 
 	clean_texts = processText(texts)
 
-	readnarratives.makePickle(clean_texts,scores, file_name)
+	pickle_texts,pickle_scores = discardBlanks(clean_texts,scores)
+
+	readnarratives.makePickle(pickle_texts,pickle_scores, file_name)
 
 	text,score = readnarratives.readPickle(file_name)
 
