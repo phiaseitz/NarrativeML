@@ -71,11 +71,12 @@ def getResponses(narrative_xml,coding_dimension):
 				for example in passage:
 					#Get the example score
 					example_attributes = example.attrib
-					responses.append((example.text,example_attributes['score']))
+					responses.append((example.text,
+						float(example_attributes['score'])))
 					#Add the text from the example to the scene text
 					scene_responses = scene_responses + ' ' + example.text
 		#Don't forget to add the scene too
-		responses.append((scene_responses,scene_score))
+		responses.append((scene_responses,float(scene_score)))
 
 	return responses
 
@@ -87,7 +88,7 @@ def loadNarrativeData(coding_dimension, first = 1, last = 164):
 		narrative_xml = readNarrativeFile(narrative_number)
 		if not(narrative_xml is None):
 			narrative_responses = getResponses(narrative_xml,coding_dimension)
-			responses.append(narrative_responses)
+			responses = responses + narrative_responses
 	return responses
 
 def main():

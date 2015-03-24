@@ -21,6 +21,7 @@ def removeNonAlphabet(text):
 	return only_alphabet
 
 def removeParentheses(text):
+	print text
 	no_parentheses = re.sub(r'\s?\([^)]*\)', '', text)
 	return no_parentheses
 
@@ -49,8 +50,9 @@ def discardBlanks (texts, scores):
 
 def processAndPickle(file_name, dimension = 'agency', first = 1, last = 140):
 	data = readnarratives.loadNarrativeData(dimension, first, last)
-	texts = [narrative[0] for narrative in data]
-	scores = [narrative[1] for narrative in data]
+	print data
+	texts = [text[0] for text in data]
+	scores = [text[1] for text in data]
 
 	clean_texts = processText(texts)
 
@@ -64,7 +66,7 @@ def main():
 	
 	file_name = 'NarrativePickleAgency'
 
-	processAndPickle(file_name, 'agency', 1, 140)
+	processAndPickle(file_name, 'agency', 1, 12)
 
 	text,score = readnarratives.readPickle(file_name)
 
