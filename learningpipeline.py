@@ -14,16 +14,26 @@ from sklearn.linear_model import RidgeCV, LogisticRegression
 
 def mostInformativeFeatures(classifier, vectorizer, 
 	categories,number_of_features):
+	#Get all the names of the reatures
 	feature_names = numpy.asarray(vectorizer.get_feature_names())
 	for i, category in enumerate(categories):
+		#For every cattegory et the top n features
+		#To do this, we sort the reatures in ascending order and get 
+		#Last n
 		top = numpy.argsort(classifier.coef_[i])[-number_of_features:]
+
 		print("%s: %s" % (category, ", ".join(feature_names[top])))
 
 def mostInformativeFeaturesRegression (classifier, vectorizer,
 	number_of_features):
+	#If we're doing regression, we don't have weights based on category
+	#Then we print the most and least agentic words
 	feature_names = numpy.asarray(vectorizer.get_feature_names())
-	top_pos = numpy.argsort(classifier.coef_)[-number_of_features:]
-	top_neg = numpy.argsort(-classifier.coef_)[-number_of_features:]
+	sorted_feats = numpy.argsort(classifier.coef_)
+	#Last n
+	top_pos = sorted_feats[-number_of_features:]
+	#First n
+	top_neg = sorted_feats[0:number_of_features]
 	print("Top Positive: %s" % ", ".join(feature_names[top_pos]))
 	print("Top Negative: %s" % ", ".join(feature_names[top_neg])) 
 
@@ -32,9 +42,11 @@ def splitTestTrain(X,y, train_size = 0.66, random_state = 42):
 	random.seed(random_state)
 	shuffle_X = X
 	shuffle_y = y
+	#Shuffle the lists
 	random.shuffle(shuffle_X)
 	random.shuffle(shuffle_y)
 
+	#Split basen on what proportion of test and train
 	splitindex = int(math.ceil(len(y)*train_size))
 
 	X_train = shuffle_X[:splitindex]

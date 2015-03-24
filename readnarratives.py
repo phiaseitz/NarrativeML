@@ -54,12 +54,14 @@ def readNarrativeFile(narrative_number):
 	#print(etree.tostring(narrative_xml, pretty_print=True))
 
 def getResponses(narrative_xml,coding_dimension):
+	#Go from XML to list of (text,score) tuples
 	scene_text = ''
 	responses = []
 	root = narrative_xml.getroot()
 	root_attributes = root.attrib
 	score_key = 'scene_'+coding_dimension
 	for scene in root:
+		#Get score for each scene (that's the overall score that we care about)
 		scene_attributes = scene.attrib
 		scene_score = scene_attributes[score_key]
 		scene_responses = ''
@@ -67,9 +69,12 @@ def getResponses(narrative_xml,coding_dimension):
 			passage_attributes = passage.attrib
 			if passage_attributes['speaker'] == 'Respondent':
 				for example in passage:
+					#Get the example score
 					example_attributes = example.attrib
 					responses.append((example.text,example_attributes['score']))
+					#Add the text from the example to the scene text
 					scene_responses = scene_responses + ' ' + example.text
+		#Don't forget to add the scene too
 		responses.append((scene_responses,scene_score))
 
 	return responses
