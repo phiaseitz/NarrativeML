@@ -59,16 +59,25 @@ def splitTestTrain(X,y, train_size = 0.66, random_state = 42):
 
 
 def main():
+
 	numpy.set_printoptions(threshold=numpy.nan)
 
 	#Read Files
 	pickle_name = 'NarrativePickleAgency'
-	texts, scores = readnarratives.readPickle(pickle_name)
+	texts, scores_actual = readnarratives.readPickle(pickle_name)
 
+	scores_dict = {}
+	scores_dict[0.0] = -2
+	scores_dict[1.0] = -1
+	scores_dict[1.5] = 0
+	scores_dict[2.0] = 1
+	scores_dict[3.0] = 2
+
+	scores_no_dec = [scores_dict[score] for score in scores_actual]
 
 	#Split test train
 	X_train, X_test, y_train, y_test = splitTestTrain(
-		texts, scores, 0.66, 42)
+		texts, scores_no_dec, 0.66, 42)
 
 	#count_vect = CountVectorizer(stop_words = "english")
 	#count_vect = CountVectorizer(ngram_range=(1, 2),stop_words = "english")
@@ -142,6 +151,16 @@ def main():
 
 	mostInformativeFeaturesRegression(ridge_model, count_vect,15)
 	print(ridge_model.score(X_test_tfidf,y_test))
+
+	raw_input("Press Enter to continue...")
+
+	to_print = [0,1,8]
+
+	visualizeresults.visualizeWeightsList(to_print, X_test,X_test_tfidf,
+		y_test, count_vect,ridge_model)
+
+	visualizeresults.printKey()
+	
 	#print('Accuracy: %f' % reliability_ridge[0])
 
 	# i = 3

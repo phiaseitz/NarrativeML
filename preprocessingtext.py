@@ -66,7 +66,7 @@ def main():
 	
 	file_name = 'NarrativePickleAgency'
 
-	processAndPickle(file_name, 'agency', 1, 12)
+	processAndPickle(file_name, 'agency', 1, 16)
 
 	text,score = readnarratives.readPickle(file_name)
 
