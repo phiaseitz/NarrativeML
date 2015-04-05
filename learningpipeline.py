@@ -154,13 +154,13 @@ def main():
 
 	raw_input("Press Enter to continue...")
 
-	to_print = [0,1,8]
+	to_print = [0,1,8,40,100]
 
 	visualizeresults.visualizeWeightsList(to_print, X_test,X_test_tfidf,
 		y_test, count_vect,ridge_model)
 
 	visualizeresults.printKey()
-	
+
 	#print('Accuracy: %f' % reliability_ridge[0])
 
 	# i = 3

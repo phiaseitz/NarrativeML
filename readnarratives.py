@@ -4,14 +4,12 @@ import pickle
 from lxml import etree
 
 
-def makePickle(text, scores,file_name):
+def makePickle(responses,file_name):
 	folder_path = '/Volumes/Research/Adler Research/Sophia OSS Stuff/'
 	file_path = folder_path+file_name
 
-	data = (text,scores)
-
 	f = open(file_path, 'w')
-	pickle.dump(data, f)
+	pickle.dump(responses, f)
 	f.close()
 
 def readPickle(file_name):
@@ -22,10 +20,7 @@ def readPickle(file_name):
 	data = pickle.load(f)
 	f.close()
 
-	texts = data[0]
-	scores = data[1]
-
-	return texts,scores
+	return data
 
 def readNarrativeFile(narrative_number):
 	folder_path = '/Volumes/Research/Adler Research/Sophia OSS Stuff/' \
@@ -56,7 +51,7 @@ def readNarrativeFile(narrative_number):
 def getResponses(narrative_xml,coding_dimension):
 	#Go from XML to list of (text,score) tuples
 	scene_text = ''
-	responses = []
+	tagged = []
 	root = narrative_xml.getroot()
 	root_attributes = root.attrib
 	score_key = 'scene_'+coding_dimension
@@ -71,24 +66,27 @@ def getResponses(narrative_xml,coding_dimension):
 				for example in passage:
 					#Get the example score
 					example_attributes = example.attrib
-					responses.append((example.text,
+					tagged.append((example.text,
 						float(example_attributes['score'])))
 					#Add the text from the example to the scene text
 					scene_responses = scene_responses + ' ' + example.text
 		#Don't forget to add the scene too
-		responses.append((scene_responses,float(scene_score)))
+		scene = (scene_responses,float(scene_score))
 
-	return responses
+	return tagged, scene
 
 def loadNarrativeData(coding_dimension, first = 1, last = 164):
 	responses = []
+
 	#Loop through all the narratives
 	for narrative_number in range(first,last + 1):
 		#Read the narrative
 		narrative_xml = readNarrativeFile(narrative_number)
 		if not(narrative_xml is None):
-			narrative_responses = getResponses(narrative_xml,coding_dimension)
-			responses = responses + narrative_responses
+			narrative_tagged, narrative_scene = getResponses(narrative_xml,
+				coding_dimension)
+			responses.append((narrative_scene,narrative_tagged))
+
 	return responses
 
 def main():

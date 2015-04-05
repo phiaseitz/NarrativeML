@@ -15,7 +15,7 @@ def processText(text_data):
 	return clean_texts
 
 def removeNonAlphabet(text):
-	alpha = re.compile('[a-zA-Z ]*')
+	alpha = re.compile('[a-zA-Z .]*')
 	only_alphabet_list = alpha.findall(text)
 	only_alphabet = ''.join(only_alphabet_list)
 	return only_alphabet
@@ -32,7 +32,8 @@ def removeExtraSpaces(text):
 def stemWords(text):
 	words = text.split(' ')
 	stemmed_text = ''
-	stemmer = nltk.stem.snowball.SnowballStemmer("english", ignore_stopwords=True)
+	stemmer = nltk.stem.snowball.SnowballStemmer("english", 
+		ignore_stopwords=True)
 	#stemmer = nltk.stem.porter.PorterStemmer()
 	for word in words:
 		stemmed_text = stemmed_text + ' ' + stemmer.stem(word)
@@ -49,31 +50,44 @@ def discardBlanks (texts, scores):
 
 
 def processAndPickle(file_name, dimension = 'agency', first = 1, last = 140):
-	data = readnarratives.loadNarrativeData(dimension, first, last)
-	print data
-	texts = [text[0] for text in data]
-	scores = [text[1] for text in data]
+	responses = readnarratives.loadNarrativeData(dimension, first, last)
+	print responses
 
-	clean_texts = processText(texts)
+	clean_responses = []
 
-	pickle_texts,pickle_scores = discardBlanks(clean_texts,scores)
 
-	readnarratives.makePickle(pickle_texts,pickle_scores, file_name)
+	for narrative in responses:
+		scene_text = narrative[0][0]
+		scene_score = narrative [0][1]
 
-	text,score = readnarratives.readPickle(file_name)
+		tagged_texts = [text[0] for text in narrative[1]]
+		tagged_scores = [text[1] for text in narrative[1]]
+
+		scene_clean_text = processText([scene_text])[0]
+		tagged_clean_texts = processText(tagged_texts)
+
+		no_blank_texts, no_blank_scores = discardBlanks(tagged_clean_texts,
+			tagged_scores)
+
+		clean_examples = [(text,no_blank_scores[i]) 
+			for i,text in enumerate(no_blank_texts)]
+		
+		clean_responses.append(((scene_clean_text,scene_score),
+			clean_examples))
+
+	readnarratives.makePickle(clean_responses, file_name)
+
+	data = readnarratives.readPickle(file_name)
 
 def main():
 	
-	file_name = 'NarrativePickleAgency'
+	file_name = 'NarrativePickleAgency_test'
 
 	processAndPickle(file_name, 'agency', 1, 16)
 
-	text,score = readnarratives.readPickle(file_name)
+	data = readnarratives.readPickle(file_name)
 
-	print text
-	print len(text)
-	print score
-	print len(score)
-
+	print data
+	
 if __name__ == '__main__':
 	main()
