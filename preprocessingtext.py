@@ -43,7 +43,7 @@ def discardBlanks (texts, scores):
 	new_texts = []
 	new_scores = []
 	for i,text in enumerate(texts):
-		if text != '':
+		if text != '' or text != ' ':
 			new_texts.append(text)
 			new_scores.append(scores[i])
 	return new_texts,new_scores
