@@ -101,14 +101,15 @@ def main():
 	X_test_tfidf = tfidf_transformer.transform(X_test_count)
 	X_test_tfidf_a = tfidf_transformer.transform(X_test_count).toarray()
 	
-	multiclass_logistic = mord.MulticlassLogistic()
-	print y_test
+	multiclass_logistic = mord.MulticlassLogistic(verbose = 1)
 
-	multiclass_logistic.fit(X_test_tfidf,y_test)
+	multiclass_logistic.fit(X_train_tfidf_a,y_train)
 
-	predicted_mord = multiclass_logistic.predict(X_test_tfidf, y_test)
+	predicted_mord = multiclass_logistic.predict(X_test_tfidf_a)
 
-	print (multiclass_logistic.score(X_test_tfidf, y_test))
+	print predicted_mord
+
+	print (multiclass_logistic.score(X_test_tfidf_a, y_test))
 
 	# #Naive Bayes - I'm not sure but this might not work so well
 	# 	#always predicts 1...
