@@ -17,14 +17,14 @@ def getScore(sentence, example_texts, example_scores):
 	max_overlap = 0
 	max_overlap_i = -1
 
-	print sentence
+	# print sentence
 
 	for i,example_text in enumerate(example_texts):
 		# If a sentence is completely contained in an example
 		if (sentence in example_text):
-			print example_scores[i]
-			print example_texts[i]
-			print ('\n')
+			# print example_scores[i]
+			# print example_texts[i]
+			# print ('\n')
 			return example_scores[i]
 		else:
 		# calculate overlap with each string 
@@ -33,18 +33,17 @@ def getScore(sentence, example_texts, example_scores):
 				max_overlap = overlap
 				max_overlap_i = i
 	if max_overlap > 0:
-		print example_scores[i]
-		print example_texts[i]
-		print ('\n')
+		# print example_scores[i]
+		# print example_texts[i]
+		# print ('\n')
 		return example_scores[max_overlap_i]
-	else:
-		print "DNEDNEDNEDNEDNEDNEDNEDNE"
-		return None
+
 
 		#Otherwise, find the example with the most overlap.
 
 
 def getSentenceScores (narrative_response):
+	scored_sentences = []
 	scene_text = narrative_response [0][0]
 	scene_score = narrative_response [0][1] 
 
@@ -60,9 +59,17 @@ def getSentenceScores (narrative_response):
 	# 	print (example_scores[i])
 
 	for sentence in sentences:
-		getScore(sentence, example_texts, example_scores)
+		 scored_sentences.append((sentence,
+		 	getScore(sentence, example_texts, example_scores)))
 
+	return scored_sentences
 
+def getSentenceData(data):
+	sentence_data = []
+	for scene in data:
+		sentence_data = sentence_data + getSentenceScores(scene)
+
+	return sentence_data
 
 def main():
 	
@@ -70,9 +77,9 @@ def main():
 
 	data = readnarratives.readPickle(file_name)
 
-	getSentenceScores(data[0])
+	print getSentenceData(data)
 
-	findOverlap(" abcd abcd", "adfsdja abcd abcd abcd")
+	#print(data[0][1])
 	
 if __name__ == '__main__':
 	main()

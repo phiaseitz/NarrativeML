@@ -94,7 +94,9 @@ def ordinal_logistic_fit(X, y, alpha=0, l1_ratio=0, n_class=None, max_iter=10000
         Objective function
         """
         w, theta_0 = np.split(x0, [X.shape[1]])
+        print (theta_0)
         theta_1 = np.roll(theta_0, 1)
+
         t0 = theta_0[y]
         z = np.diff(theta_0)
 

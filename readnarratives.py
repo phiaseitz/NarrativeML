@@ -1,6 +1,7 @@
 import string
 import os 
 import pickle
+import copy
 from lxml import etree
 
 
@@ -50,8 +51,10 @@ def readNarrativeFile(narrative_number):
 
 def getResponses(narrative_xml,coding_dimension):
 	#Go from XML to list of (text,score) tuples
+	responses = []
 	scene_text = ''
 	tagged = []
+	whole_scene = []
 	root = narrative_xml.getroot()
 	root_attributes = root.attrib
 	score_key = 'scene_'+coding_dimension
@@ -71,9 +74,11 @@ def getResponses(narrative_xml,coding_dimension):
 					#Add the text from the example to the scene text
 					scene_responses = scene_responses + ' ' + example.text
 		#Don't forget to add the scene too
-		scene = (scene_responses,float(scene_score))
+		responses.append(((scene_responses,float(scene_score)),
+			copy.deepcopy(tagged)))
+		del tagged[:]
 
-	return tagged, scene
+	return responses
 
 def loadNarrativeData(coding_dimension, first = 1, last = 164):
 	responses = []
@@ -83,9 +88,9 @@ def loadNarrativeData(coding_dimension, first = 1, last = 164):
 		#Read the narrative
 		narrative_xml = readNarrativeFile(narrative_number)
 		if not(narrative_xml is None):
-			narrative_tagged, narrative_scene = getResponses(narrative_xml,
+			narrative_responses = getResponses(narrative_xml,
 				coding_dimension)
-			responses.append((narrative_scene,narrative_tagged))
+			responses.append(narrative_responses)
 
 	return responses
 

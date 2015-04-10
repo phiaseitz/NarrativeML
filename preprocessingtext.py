@@ -21,7 +21,7 @@ def removeNonAlphabet(text):
 	return only_alphabet
 
 def removeParentheses(text):
-	print text
+	#print text
 	no_parentheses = re.sub(r'\s?\([^)]*\)', '', text)
 	return no_parentheses
 
@@ -50,30 +50,31 @@ def discardBlanks (texts, scores):
 
 
 def processAndPickle(file_name, dimension = 'agency', first = 1, last = 140):
-	responses = readnarratives.loadNarrativeData(dimension, first, last)
-	print responses
-
 	clean_responses = []
+	responses = readnarratives.loadNarrativeData(dimension, first, last)
+	print responses [0]
+
+	#print responses [0][1]
 
 
 	for narrative in responses:
-		scene_text = narrative[0][0]
-		scene_score = narrative [0][1]
+		for scene in narrative:
+			scene_text = scene[0][0]
+			scene_score = scene[0][1]
 
-		tagged_texts = [text[0] for text in narrative[1]]
-		tagged_scores = [text[1] for text in narrative[1]]
+			tagged_texts = [text[0] for text in scene[1]]
+			tagged_scores = [text[1] for text in scene[1]]
 
-		scene_clean_text = processText([scene_text])[0]
-		tagged_clean_texts = processText(tagged_texts)
+			scene_clean_text = processText([scene_text])[0]
+			tagged_clean_texts = processText(tagged_texts)
 
-		no_blank_texts, no_blank_scores = discardBlanks(tagged_clean_texts,
-			tagged_scores)
+			no_blank_texts, no_blank_scores = discardBlanks(tagged_clean_texts,
+				tagged_scores)
 
-		clean_examples = [(text,no_blank_scores[i]) 
-			for i,text in enumerate(no_blank_texts)]
-		
-		clean_responses.append(((scene_clean_text,scene_score),
-			clean_examples))
+			clean_examples = [(text,no_blank_scores[i]) 
+				for i,text in enumerate(no_blank_texts)]
+			clean_responses.append(((scene_clean_text,scene_score),
+				clean_examples))
 
 	readnarratives.makePickle(clean_responses, file_name)
 
@@ -87,7 +88,7 @@ def main():
 
 	data = readnarratives.readPickle(file_name)
 
-	print data
+	#print data
 	
 if __name__ == '__main__':
 	main()

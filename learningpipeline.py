@@ -1,10 +1,11 @@
 import readnarratives
+import scoresentencesdata
 import visualizeresults
 import numpy
 import random
 import scipy
 import math
-import logisticordinalregression
+import mord
 from sklearn import metrics
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
@@ -63,15 +64,20 @@ def main():
 	numpy.set_printoptions(threshold=numpy.nan)
 
 	#Read Files
-	pickle_name = 'NarrativePickleAgency'
-	texts, scores_actual = readnarratives.readPickle(pickle_name)
+	pickle_name = 'NarrativePickleAgency_test'
+	responses = readnarratives.readPickle(pickle_name)
+
+	sentences = scoresentencesdata.getSentenceData(responses)
+
+	texts = [sentence[0] for sentence in sentences]
+	scores_actual = [sentence[1] for sentence in sentences]
 
 	scores_dict = {}
-	scores_dict[0.0] = -2
+	scores_dict[0.0] = -1
 	scores_dict[1.0] = -1
 	scores_dict[1.5] = 0
 	scores_dict[2.0] = 1
-	scores_dict[3.0] = 2
+	scores_dict[3.0] = 1
 
 	scores_no_dec = [scores_dict[score] for score in scores_actual]
 
@@ -95,89 +101,83 @@ def main():
 	X_test_tfidf = tfidf_transformer.transform(X_test_count)
 	X_test_tfidf_a = tfidf_transformer.transform(X_test_count).toarray()
 	
-	#Naive Bayes - I'm not sure but this might not work so well
-		#always predicts 1...
-	print ('\nNaive Bayes \n')
-	#naive_bayes_model = BernoulliNB().fit(X_train_tfidf, y_train)
-	naive_bayes_model = MultinomialNB().fit(X_train_tfidf, y_train)
-
-	predicted_nb = naive_bayes_model.predict(X_test_tfidf)
-	#print('Accuracy: %f' % numpy.mean(predicted_nb == y_test))
-
+	multiclass_logistic = mord.MulticlassLogistic()
 	print y_test
-	print predicted_nb
 
-	mostInformativeFeatures(naive_bayes_model, count_vect,[0,1,2,3],15)
+	multiclass_logistic.fit(X_test_tfidf,y_test)
 
-	#reliability_nb = scipy.stats.pearsonr(predicted_nb,y_test)
-	print(naive_bayes_model.score(X_test_tfidf,y_test))
+	predicted_mord = multiclass_logistic.predict(X_test_tfidf, y_test)
 
-	#print ('Accuracy: %f' % reliability_nb[0])
-	#Support vector
-	print('\nSupport Vector Machine \n')
+	print (multiclass_logistic.score(X_test_tfidf, y_test))
 
-	support_vector_model = SGDClassifier(loss='hinge', penalty='l2',
-		alpha=1e-3, n_iter=4)
+	# #Naive Bayes - I'm not sure but this might not work so well
+	# 	#always predicts 1...
+	# print ('\nNaive Bayes \n')
+	# #naive_bayes_model = BernoulliNB().fit(X_train_tfidf, y_train)
+	# naive_bayes_model = MultinomialNB().fit(X_train_tfidf, y_train)
 
-	support_vector_model.fit(X_train_tfidf, y_train)
+	# predicted_nb = naive_bayes_model.predict(X_test_tfidf)
+	# #print('Accuracy: %f' % numpy.mean(predicted_nb == y_test))
 
-	predicted_svm = support_vector_model.predict(X_test_tfidf)
+	# print y_test
+	# print predicted_nb
+
+	# mostInformativeFeatures(naive_bayes_model, count_vect,[-1, 0, 1],15)
+
+	# #reliability_nb = scipy.stats.pearsonr(predicted_nb,y_test)
+	# print(naive_bayes_model.score(X_test_tfidf,y_test))
+
+	# #print ('Accuracy: %f' % reliability_nb[0])
+	# #Support vector
+	# print('\nSupport Vector Machine \n')
+
+	# support_vector_model = SGDClassifier(loss='hinge', penalty='l2',
+	# 	alpha=1e-3, n_iter=4)
+
+	# support_vector_model.fit(X_train_tfidf, y_train)
+
+	# predicted_svm = support_vector_model.predict(X_test_tfidf)
 	
-	print y_test
-	print predicted_svm
+	# print y_test
+	# print predicted_svm
 
-	#print('Accuracy: %f' % numpy.mean(predicted_svm == y_test))
+	# #print('Accuracy: %f' % numpy.mean(predicted_svm == y_test))
 
-	mostInformativeFeatures(support_vector_model, count_vect,[0,1,2,3],15)
+	# mostInformativeFeatures(support_vector_model, count_vect,[-1, 0,1],15)
 	
-	reliability_svm = scipy.stats.pearsonr(predicted_svm,y_test)
+	# reliability_svm = scipy.stats.pearsonr(predicted_svm,y_test)
 
-	#print ('Accuracy: %f' % reliability_svm[0])
-	print(support_vector_model.score(X_test_tfidf,y_test))
+	# #print ('Accuracy: %f' % reliability_svm[0])
+	# print(support_vector_model.score(X_test_tfidf,y_test))
 
-	#Ridge Regression
-	print('\nRidge Regression \n')
-	ridge_model = Ridge(alpha = 10) #When only doing bag of words, 10 is good
-	ridge_model.fit(X_train_tfidf,y_train)
+	# #Ridge Regression
+	# print('\nRidge Regression \n')
+	# ridge_model = Ridge(alpha = 10) #When only doing bag of words, 10 is good
+	# ridge_model.fit(X_train_tfidf,y_train)
 
-	predicted_ridge = ridge_model.predict(X_test_tfidf)
+	# predicted_ridge = ridge_model.predict(X_test_tfidf)
 
-	#print(ridge_model.alpha_)
-	print y_test
-	print predicted_ridge
-	reliability_ridge = scipy.stats.pearsonr(predicted_ridge,y_test)
+	# #print(ridge_model.alpha_)
+	# print y_test
+	# print predicted_ridge
+	# reliability_ridge = scipy.stats.pearsonr(predicted_ridge,y_test)
 
-	#print(ridge_model.coef_)
+	# #print(ridge_model.coef_)
 
-	mostInformativeFeaturesRegression(ridge_model, count_vect,15)
-	print(ridge_model.score(X_test_tfidf,y_test))
+	# mostInformativeFeaturesRegression(ridge_model, count_vect,15)
+	# print(ridge_model.score(X_test_tfidf,y_test))
 
-	raw_input("Press Enter to continue...")
+	# raw_input("Press Enter to continue...")
 
-	to_print = [0,1,8,40,100]
-
-	visualizeresults.visualizeWeightsList(to_print, X_test,X_test_tfidf,
-		y_test, count_vect,ridge_model)
-
-	visualizeresults.printKey()
-
-	#print('Accuracy: %f' % reliability_ridge[0])
-
-	# i = 3
-
-	# visualizeresults.visualizeWeights(X_test[i],X_test_tfidf[i,:]
-	# 	,count_vect,ridge_model)
-	# print(y_test[i])
-
-	#to_print = range(len(X_test))
+	# to_print = range(len(X_test))
 
 	# visualizeresults.visualizeWeightsList(to_print, X_test,X_test_tfidf,
 	# 	y_test, count_vect,ridge_model)
 
-	# #Logistic ordinal regression
+	#Logistic ordinal regression
 	# w, theta = logisticordinalregression.ordinal_logistic_fit(
-	# 	X_train_tfidf_a,
-	# 	y_train, verbose=True, solver='TNC')
+	# 	X_train_tfidf_a, y_train, verbose=True, solver='TNC')
+	# print theta	
 	# pred = logisticordinalregression.ordinal_logistic_predict(w, theta, 
 	# 	X_test_tfidf_a)
  #        s = metrics.mean_absolute_error(y_test, pred)
@@ -185,26 +185,26 @@ def main():
  #        print (pred)
  #        print (y_test)
  #        print('ERROR (ORDINAL)  fold %s: %s' % (i+1, s))
-        
 
 
-	#Linear Regresssion
 
-	print('\nLinear Regression \n')
-	linear_model = LinearRegression()
-	linear_model.fit(X_train_tfidf,y_train)
+	# #Linear Regresssion
 
-	predicted_linear = linear_model.predict(X_test_tfidf)
+	# print('\nLinear Regression \n')
+	# linear_model = LinearRegression()
+	# linear_model.fit(X_train_tfidf,y_train)
 
-	#print(ridge_model.alpha_)
-	print y_test
-	print predicted_linear
-	reliability_linear = scipy.stats.pearsonr(predicted_linear,y_test)
+	# predicted_linear = linear_model.predict(X_test_tfidf)
 
-	#print(ridge_model.coef_)
+	# #print(ridge_model.alpha_)
+	# print y_test
+	# print predicted_linear
+	# reliability_linear = scipy.stats.pearsonr(predicted_linear,y_test)
 
-	mostInformativeFeaturesRegression(linear_model, count_vect,15)
-	print(linear_model.score(X_test_tfidf,y_test))
+	# #print(ridge_model.coef_)
+
+	# mostInformativeFeaturesRegression(linear_model, count_vect,15)
+	# print(linear_model.score(X_test_tfidf,y_test))
 
 	#print('Accuracy: %f' % reliability_linear[0])
 
