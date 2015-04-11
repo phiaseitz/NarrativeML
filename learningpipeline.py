@@ -101,7 +101,7 @@ def main():
 	X_test_tfidf = tfidf_transformer.transform(X_test_count)
 	X_test_tfidf_a = tfidf_transformer.transform(X_test_count).toarray()
 	
-	multiclass_logistic = mord.MulticlassLogistic(verbose = 1)
+	multiclass_logistic = mord.MulticlassLogistic(alpha = 100, verbose = 1)
 
 	multiclass_logistic.fit(X_train_tfidf_a,y_train)
 
