@@ -6,6 +6,7 @@ import random
 import scipy
 import math
 import mord
+import hydrat_code.classifier.ordinal as classifier
 from sklearn import metrics
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
@@ -37,6 +38,17 @@ def mostInformativeFeaturesRegression (classifier, vectorizer,
 	top_neg = sorted_feats[0:number_of_features]
 	print("Top Positive: %s" % ", ".join(feature_names[top_pos]))
 	print("Top Negative: %s" % ", ".join(feature_names[top_neg])) 
+
+def scoreNarrativeFromSentences (scores):
+	non_zero = [score for score in scores if score != 0]
+
+	average = sum(non_zero)/len(non_zero)
+
+	if average < 0:
+		return -1
+	else:
+		return 1
+
 
 def splitTestTrain(X,y, train_size = 0.66, random_state = 42):
 	#Making my own so I can split text!
@@ -100,16 +112,18 @@ def main():
 	X_test_count = count_vect.transform(X_test)
 	X_test_tfidf = tfidf_transformer.transform(X_test_count)
 	X_test_tfidf_a = tfidf_transformer.transform(X_test_count).toarray()
+
+	ordinal_classifier = classifier.OrdinalClassLearner()
 	
-	multiclass_logistic = mord.MulticlassLogistic(alpha = 100, verbose = 1)
+	# multiclass_logistic = mord.OrdinalLogistic(alpha = 1000, verbose = 1)
 
-	multiclass_logistic.fit(X_train_tfidf_a,y_train)
+	# multiclass_logistic.fit(X_train_tfidf_a,y_train)
 
-	predicted_mord = multiclass_logistic.predict(X_test_tfidf_a)
+	# predicted_mord = multiclass_logistic.predict(X_test_tfidf_a)
 
-	print predicted_mord
+	# print predicted_mord
 
-	print (multiclass_logistic.score(X_test_tfidf_a, y_test))
+	# print (multiclass_logistic.score(X_test_tfidf_a, y_test))
 
 	# #Naive Bayes - I'm not sure but this might not work so well
 	# 	#always predicts 1...
