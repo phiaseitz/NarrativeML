@@ -9,7 +9,7 @@ import mord
 import hydrat_code.classifier.ordinal as classifier
 from sklearn import metrics
 
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import SGDClassifier,Ridge,RidgeCV,LinearRegression
 from sklearn.linear_model import RidgeCV, LogisticRegression
@@ -101,19 +101,23 @@ def main():
 	#count_vect = CountVectorizer(ngram_range=(1, 2),stop_words = "english")
 	#count_vect = CountVectorizer(ngram_range=(1, 2))
 	#count_vect = CountVectorizer()
-	count_vect = CountVectorizer(token_pattern = r'\w*')
+	tfidf_vect = TfidfVectorizer(token_pattern = r'\w*', max_features = 500)
 
-	X_train_count = count_vect.fit_transform(X_train)
+	X_train_tfidf = tfidf_vect.fit_transform(X_train)
+	X_test_tfidf = tfidf_vect.fit_transform(X_test)
 
-	tfidf_transformer = TfidfTransformer()
-	X_train_tfidf = tfidf_transformer.fit_transform(X_train_count)
-	X_train_tfidf_a = tfidf_transformer.fit_transform(X_train_count).toarray()
+	# tfidf_transformer = TfidfTransformer(max_features = 400)
+	# X_train_tfidf = tfidf_transformer.fit_transform(X_train_count)
+	# X_train_tfidf_a = tfidf_transformer.fit_transform(X_train_count).toarray()
 
-	X_test_count = count_vect.transform(X_test)
-	X_test_tfidf = tfidf_transformer.transform(X_test_count)
-	X_test_tfidf_a = tfidf_transformer.transform(X_test_count).toarray()
+	# X_test_count = count_vect.transform(X_test)
+	# X_test_tfidf = tfidf_transformer.transform(X_test_count)
+	# X_test_tfidf_a = tfidf_transformer.transform(X_test_count).toarray()
 
-	ordinal_classifier = classifier.OrdinalClassLearner()
+
+
+
+	# ordinal_classifier = classifier.OrdinalClassLearner()
 	
 	# multiclass_logistic = mord.OrdinalLogistic(alpha = 1000, verbose = 1)
 
@@ -223,22 +227,24 @@ def main():
 
 	#print('Accuracy: %f' % reliability_linear[0])
 
-	# 	#Linear Regresssion
+		#Logistic Regresssion
 
-	# print('\n Logistic Regression \n')
-	# logistic_model = LogisticRegression(penalty = 'l1')
-	# logistic_model.fit(X_train_tfidf,y_train)
+	print('\n Logistic Regression \n')
+	logistic_model = LogisticRegression(penalty = 'l1', tol = 0.00001)
+	logistic_model.fit(X_train_tfidf,y_train)
 
-	# predicted_logistic = linear_model.predict(X_test_tfidf)
+	predicted_logistic = logistic_model.predict(X_test_tfidf)
 
-	# print y_test
-	# print predicted_linear
+	print y_test
+	print predicted_logistic
 
-	# print(logistic_model.score(X_test_tfidf,y_test))
+	print (y_test - predicted_logistic)
 
-	# mostInformativeFeatures(logistic_model, count_vect,[0,1,2,3],15)
+	print(logistic_model.score(X_test_tfidf,y_test))
 
-	# #print('Accuracy: %f' % reliability_linear[0])
+	mostInformativeFeatures(logistic_model, tfidf_vect,[-1,0,1],15)
+
+	#print('Accuracy: %f' % reliability_linear[0])
 
 
 if __name__ == '__main__':
