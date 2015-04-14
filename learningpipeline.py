@@ -13,7 +13,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import SGDClassifier,Ridge,RidgeCV,LinearRegression
 from sklearn.linear_model import RidgeCV, LogisticRegression
-
+from sklearn.metrics import roc_auc_score
 def mostInformativeFeatures(classifier, vectorizer, 
 	categories,number_of_features):
 	#Get all the names of the reatures
@@ -70,6 +70,41 @@ def splitTestTrain(X,y, train_size = 0.66, random_state = 42):
 
 	return X_train, X_test, y_train, y_test
 
+def predictFromProbs(probs):
+	problow = [prob[0] for prob in probs]
+	probno = [prob[1] for prob in probs]
+	probhigh = [prob[2] for prob in probs]
+
+	avglow = sum(problow)/len(problow)
+	avgno = sum(probno)/len(probno)
+	avghigh = sum(probhigh)/len(probhigh)
+
+	# print (avglow)
+	# print (avgno)
+	# print (avghigh)
+
+	scores = []
+
+	for prob_list in probs:
+		lowdiff = (prob_list[0]-avglow)/avglow
+		nodiff = (prob_list[1]-avgno)/avgno
+		highdiff = (prob_list[2]-avghigh)/avghigh
+
+		# print lowdiff
+		# print nodiff
+		# print highdiff
+
+		if lowdiff > nodiff and lowdiff > highdiff:
+			scores.append(-1)
+		elif highdiff > nodiff and highdiff > lowdiff:
+			scores.append(1)
+		else:
+			scores.append(0)
+
+	return scores
+
+	#print(avglow+avgno+avghigh)
+
 
 def main():
 
@@ -101,10 +136,57 @@ def main():
 	#count_vect = CountVectorizer(ngram_range=(1, 2),stop_words = "english")
 	#count_vect = CountVectorizer(ngram_range=(1, 2))
 	#count_vect = CountVectorizer()
-	tfidf_vect = TfidfVectorizer(token_pattern = r'\w*', max_features = 500)
+	tfidf_vect = TfidfVectorizer(token_pattern = r'\w*', max_features = 300)
 
 	X_train_tfidf = tfidf_vect.fit_transform(X_train)
 	X_test_tfidf = tfidf_vect.fit_transform(X_test)
+
+		#Logistic Regresssion
+
+	print('\n Logistic Regression \n')
+	logistic_model = LogisticRegression(penalty = 'l2', tol = 0.00001, C=10**-5, intercept_scaling=10000)
+	logistic_model.fit(X_train_tfidf,y_train)
+	
+	predicted_logistic = logistic_model.predict(X_test_tfidf)
+	probs_logistic = logistic_model.predict_proba(X_test_tfidf)
+
+	#print y_test
+	#print predicted_logistic
+
+	print probs_logistic
+
+	# print (y_test - predicted_logistic)
+
+	# print(logistic_model.score(X_test_tfidf,y_test))
+
+	mostInformativeFeatures(logistic_model, tfidf_vect,[-1,0,1],15)
+
+	#print y_test
+	scores = predictFromProbs(probs_logistic)
+
+	# print scores
+	# print y_test
+	# diffs = [scores[i]-y_test[i] for i in range(len(y_test))]
+	# print ('Correctly predicted -1s')
+	# print(sum([1 for i in range(len(scores)) 
+	# 	if (y_test[i] == -1 and scores[i] == -1)])/float(y_test.count(-1)))
+	# print ('Correctly predicted 0s')
+	# print(sum([1 for i in range(len(scores)) 
+	# 	if (y_test[i] == 0 and scores[i] == 0)])/float(y_test.count(0)))
+	# print ('Correctly predicted 1s')
+	# print(sum([1 for i in range(len(scores)) 
+	# 	if (y_test[i] == 1 and scores[i] == 1)])/float(y_test.count(1)))
+	# print ('Total')
+	# print((sum([1 for x in diffs if x == 0])/float(len(diffs))))
+
+
+	print y_test
+	#print [x == 1 for x in y_test]
+	print(roc_auc_score([x == 1 for x in y_test if x != 0], [prob[2]-prob[0] for i,prob in enumerate(probs_logistic) if y_test[i] != 0]))
+
+
+
+	# print y_train
 
 	# tfidf_transformer = TfidfTransformer(max_features = 400)
 	# X_train_tfidf = tfidf_transformer.fit_transform(X_train_count)
@@ -227,22 +309,7 @@ def main():
 
 	#print('Accuracy: %f' % reliability_linear[0])
 
-		#Logistic Regresssion
-
-	print('\n Logistic Regression \n')
-	logistic_model = LogisticRegression(penalty = 'l1', tol = 0.00001)
-	logistic_model.fit(X_train_tfidf,y_train)
-
-	predicted_logistic = logistic_model.predict(X_test_tfidf)
-
-	print y_test
-	print predicted_logistic
-
-	print (y_test - predicted_logistic)
-
-	print(logistic_model.score(X_test_tfidf,y_test))
-
-	mostInformativeFeatures(logistic_model, tfidf_vect,[-1,0,1],15)
+	
 
 	#print('Accuracy: %f' % reliability_linear[0])
 
