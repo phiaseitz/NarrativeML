@@ -140,6 +140,10 @@ def main():
 	max_feats = range(100,1200,100)
 	Cs = [10**-2,10**-3,10**-4,10**-5,10**-6,10**-7,10**-8,10**-9,10**-10]
 
+	best_C = -1
+	best_feats = -1
+	max_area = -1
+
 	for max_feat in max_feats:
 		for C in Cs:
 			tfidf_vect = TfidfVectorizer(token_pattern = r'\w*', 
@@ -151,19 +155,29 @@ def main():
 				#Logistic Regresssion
 			#print('\n Logistic Regression \n')
 			logistic_model = LogisticRegression(penalty = 'l2',
-				tol = 0.00001, C=10**-5, intercept_scaling=10000)
+				tol = 0.00001, C=C, intercept_scaling=10000)
 			logistic_model.fit(X_train_tfidf,y_train)
 			
-			predicted_logistic = logistic_model.predict(X_test_tfidf)
+			#predicted_logistic = logistic_model.predict(X_test_tfidf)
 			probs_logistic = logistic_model.predict_proba(X_test_tfidf)
+
+			roc_area = roc_auc_score([x == 1 for x in y_test if x != 0],
+				[prob[2]-prob[0] for i,prob in enumerate(probs_logistic) 
+				if y_test[i] != 0])
+
+			if roc_area > max_area:
+				max_area = roc_area
+				best_C = C
+				best_feats = max_feat
 
 			print "Maximum Features: {} and C: {}".format(max_feat, C)
 			
-			print(roc_auc_score([x == 1 for x in y_test if x != 0],
-				[prob[2]+prob[0] for i,prob in enumerate(probs_logistic) 
-				if y_test[i] != 0]))
+			print roc_area
 
 			print '\n'
+
+	print 'Best Feature Num: {} and Best C: {}'.format(best_feats, best_C)
+	print 'Highest ROC area: {}'.format(max_area)
 
 			#print y_test
 			#print predicted_logistic
