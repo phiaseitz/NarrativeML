@@ -104,13 +104,51 @@ def predictFromProbs(probs):
 	return scores
 
 	#print(avglow+avgno+avghigh)
+def ROCArea(args_for_min, X_train, y_train, X_test, y_test):
+	max_feat = int(args_for_min[0])
+	C = args_for_min[1]
+	#Read Files
+
+	#count_vect = CountVectorizer(stop_words = "english")
+	#count_vect = CountVectorizer(ngram_range=(1, 2),stop_words = "english")
+	#count_vect = CountVectorizer(ngram_range=(1, 2))
+	#count_vect = CountVectorizer()
+	
+
+	tfidf_vect = TfidfVectorizer(token_pattern = r'\w*', 
+		max_features = max_feat)
+
+	X_train_tfidf = tfidf_vect.fit_transform(X_train)
+	X_test_tfidf = tfidf_vect.fit_transform(X_test)
+
+		#Logistic Regresssion
+	#print('\n Logistic Regression \n')
+	logistic_model = LogisticRegression(penalty = 'l2',
+		tol = 0.00001, C=C, intercept_scaling=10000)
+	logistic_model.fit(X_train_tfidf,y_train)
+	
+	#predicted_logistic = logistic_model.predict(X_test_tfidf)
+	probs_logistic = logistic_model.predict_proba(X_test_tfidf)
+
+	roc_area = roc_auc_score([x == 1 for x in y_test if x != 0],
+		[prob[2]-prob[0] for i,prob in enumerate(probs_logistic) 
+		if y_test[i] != 0])
+
+	return 1-roc_area
+
+	# 	print "Maximum Features: {} and C: {}".format(max_feat, C)
+		
+	# 	print roc_area
+
+	# 	print '\n'
+
+	# print 'Best Feature Num: {} and Best C: {}'.format(best_feats, best_C)
+	# print 'Highest ROC area: {}'.format(max_area)
+
 
 
 def main():
 
-	numpy.set_printoptions(threshold=numpy.nan)
-
-	#Read Files
 	pickle_name = 'NarrativePickleAgency_test'
 	responses = readnarratives.readPickle(pickle_name)
 
@@ -132,52 +170,81 @@ def main():
 	X_train, X_test, y_train, y_test = splitTestTrain(
 		texts, scores_no_dec, 0.66, 42)
 
-	#count_vect = CountVectorizer(stop_words = "english")
-	#count_vect = CountVectorizer(ngram_range=(1, 2),stop_words = "english")
-	#count_vect = CountVectorizer(ngram_range=(1, 2))
-	#count_vect = CountVectorizer()
+	numpy.set_printoptions(threshold=numpy.nan)
+
+
+	print(scipy.optimize.minimize(ROCArea, [390, 0.001], args = (
+		X_train, y_train, X_test, y_test)))
+
+
+	# #Read Files
+	# pickle_name = 'NarrativePickleAgency_test'
+	# responses = readnarratives.readPickle(pickle_name)
+
+	# sentences = scoresentencesdata.getSentenceData(responses)
+
+	# texts = [sentence[0] for sentence in sentences]
+	# scores_actual = [sentence[1] for sentence in sentences]
+
+	# scores_dict = {}
+	# scores_dict[0.0] = -1
+	# scores_dict[1.0] = -1
+	# scores_dict[1.5] = 0
+	# scores_dict[2.0] = 1
+	# scores_dict[3.0] = 1
+
+	# scores_no_dec = [scores_dict[score] for score in scores_actual]
+
+	# #Split test train
+	# X_train, X_test, y_train, y_test = splitTestTrain(
+	# 	texts, scores_no_dec, 0.66, 42)
+
+	# #count_vect = CountVectorizer(stop_words = "english")
+	# #count_vect = CountVectorizer(ngram_range=(1, 2),stop_words = "english")
+	# #count_vect = CountVectorizer(ngram_range=(1, 2))
+	# #count_vect = CountVectorizer()
 	
-	max_feats = range(100,1200,100)
-	Cs = [10**-2,10**-3,10**-4,10**-5,10**-6,10**-7,10**-8,10**-9,10**-10]
+	# max_feats = range(425,475,1)
+	# Cs = [10**-2,10**-3,10**-4]
 
-	best_C = -1
-	best_feats = -1
-	max_area = -1
+	# best_C = -1
+	# best_feats = -1
+	# max_area = -1
 
-	for max_feat in max_feats:
-		for C in Cs:
-			tfidf_vect = TfidfVectorizer(token_pattern = r'\w*', 
-				max_features = max_feat)
+	# for max_feat in max_feats:
+	# 	for C in Cs:
+	# 		tfidf_vect = TfidfVectorizer(token_pattern = r'\w*', 
+	# 			max_features = max_feat)
 
-			X_train_tfidf = tfidf_vect.fit_transform(X_train)
-			X_test_tfidf = tfidf_vect.fit_transform(X_test)
+	# 		X_train_tfidf = tfidf_vect.fit_transform(X_train)
+	# 		X_test_tfidf = tfidf_vect.fit_transform(X_test)
 
-				#Logistic Regresssion
-			#print('\n Logistic Regression \n')
-			logistic_model = LogisticRegression(penalty = 'l2',
-				tol = 0.00001, C=C, intercept_scaling=10000)
-			logistic_model.fit(X_train_tfidf,y_train)
+	# 			#Logistic Regresssion
+	# 		#print('\n Logistic Regression \n')
+	# 		logistic_model = LogisticRegression(penalty = 'l2',
+	# 			tol = 0.00001, C=C, intercept_scaling=10000)
+	# 		logistic_model.fit(X_train_tfidf,y_train)
 			
-			#predicted_logistic = logistic_model.predict(X_test_tfidf)
-			probs_logistic = logistic_model.predict_proba(X_test_tfidf)
+	# 		#predicted_logistic = logistic_model.predict(X_test_tfidf)
+	# 		probs_logistic = logistic_model.predict_proba(X_test_tfidf)
 
-			roc_area = roc_auc_score([x == 1 for x in y_test if x != 0],
-				[prob[2]-prob[0] for i,prob in enumerate(probs_logistic) 
-				if y_test[i] != 0])
+	# 		roc_area = roc_auc_score([x == 1 for x in y_test if x != 0],
+	# 			[prob[2]-prob[0] for i,prob in enumerate(probs_logistic) 
+	# 			if y_test[i] != 0])
 
-			if roc_area > max_area:
-				max_area = roc_area
-				best_C = C
-				best_feats = max_feat
+	# 		if roc_area > max_area:
+	# 			max_area = roc_area
+	# 			best_C = C
+	# 			best_feats = max_feat
 
-			print "Maximum Features: {} and C: {}".format(max_feat, C)
+	# 		print "Maximum Features: {} and C: {}".format(max_feat, C)
 			
-			print roc_area
+	# 		print roc_area
 
-			print '\n'
+	# 		print '\n'
 
-	print 'Best Feature Num: {} and Best C: {}'.format(best_feats, best_C)
-	print 'Highest ROC area: {}'.format(max_area)
+	# print 'Best Feature Num: {} and Best C: {}'.format(best_feats, best_C)
+	# print 'Highest ROC area: {}'.format(max_area)
 
 			#print y_test
 			#print predicted_logistic
