@@ -105,8 +105,8 @@ def predictFromProbs(probs):
 
 	#print(avglow+avgno+avghigh)
 def ROCArea(args_for_min, X_train, y_train, X_test, y_test):
-	max_feat = int(args_for_min[0])
-	C = args_for_min[1]
+	max_feat = abs(int(args_for_min[0]))
+	C = abs(args_for_min[1])
 	#Read Files
 
 	#count_vect = CountVectorizer(stop_words = "english")
@@ -173,8 +173,11 @@ def main():
 	numpy.set_printoptions(threshold=numpy.nan)
 
 
-	print(scipy.optimize.minimize(ROCArea, [390, 0.001], args = (
-		X_train, y_train, X_test, y_test)))
+	opvals = scipy.optimize.minimize(ROCArea, (450, 0.001), args = (
+		X_train, y_train, X_test, y_test), method = 'Nelder-Mead')
+
+	print(opvals.x)
+	print(1- ROCArea(opvals.x,X_train, y_train, X_test, y_test))
 
 
 	# #Read Files
