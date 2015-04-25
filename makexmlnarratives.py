@@ -6,6 +6,8 @@ from lxml import etree
 
 #Reading the narrative file by line
 def readFile (num_narrative):
+	"""Given the narrative number, return the list of the text in each line 
+	of the .txt file """
 	#Where the folder is
 	folder_path = '/Volumes/Research/Adler Research/Sophia OSS Stuff/' \
 		'Narratives_txt/' 
@@ -33,6 +35,8 @@ def readFile (num_narrative):
 #There are lots of empty lines in the narratives, plus we don't want to have 
 #newlines in the existing lines
 def cleanText (narrative_lines):
+	"""Given the list of lines, remove all newline characters as well as any 
+	blank lines"""
 	newline_characters = ['\n', '\r', '\r\n']
 	#Get rid of all the empty lines
 	no_blank_lines = [line for line in narrative_lines if not (
@@ -48,6 +52,7 @@ def cleanText (narrative_lines):
 #After we know who the speaker is, get rid of that so that we only have
 #what they said
 def removeSpeakerFromLine (line):
+	"""Remove the indicated speaker from the text of a line"""
 	#the regular expression is: at the beginning of the string,
 	#some letters, maybe a space, and then maybe some more letters followed
 	#by a colon and then maybe some spaces
@@ -57,6 +62,9 @@ def removeSpeakerFromLine (line):
 #After a speaker is done talking, we want to add that passage 
 #to our xml document
 def addTextToCurrentScene(narrative, passage_text, current_speaker):
+	"""Given the xml object, passage text, and the curent speaker, add the
+	passage to the xml object in the current scene and tag it with the 
+	current speaker"""
 	#Get the most recent element in our xml file
 	current_scene = narrative[-1]
 	#Make the passage, set the speaker, then set the text
@@ -65,6 +73,8 @@ def addTextToCurrentScene(narrative, passage_text, current_speaker):
 
 #Go from a list of lines to an xml object
 def linesToXML (narrative_lines, narrative_number, narrative_scores):
+	"""Given a list of lines, the number of the narrative, and list of scores, 
+	go from the lines to an xml object"""
 	#All the scenes
 	scenes = ['HIGH POINT', 'LOW POINT', 'TURNING POINT']
 
@@ -151,6 +161,7 @@ def linesToXML (narrative_lines, narrative_number, narrative_scores):
 	return narrative
 
 def saveXML (narrative_xml,narrative_number):
+	"""Save the xml object as an xml file with the number in the name"""
 	folder_path = '/Volumes/Research/Adler Research/Sophia OSS Stuff/' \
 		'Narratives_xml/' 
 	file_name = 'FLSA_{narrative_num}.xml'.format(narrative_num =
@@ -162,6 +173,7 @@ def saveXML (narrative_xml,narrative_number):
 	e_tree_narrative.write(full_file_path, pretty_print=True)
 
 def makeScoresDict():
+	""" Make a dictionary of narrative number to scores that we can use later"""
 	scores = {}
 	ha_ind = 1
 	hc_ind = 2
