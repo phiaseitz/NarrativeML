@@ -6,6 +6,8 @@ from lxml import etree
 
 
 def makePickle(responses,file_name):
+	"""Make a pickle of the resonposes. Takes in a list of responses (including
+	scores) and pickles them"""
 	folder_path = '/Volumes/Research/Adler Research/Sophia OSS Stuff/'
 	file_path = folder_path+file_name
 
@@ -14,6 +16,7 @@ def makePickle(responses,file_name):
 	f.close()
 
 def readPickle(file_name):
+	"""Read and return whatever is in the pickle"""
 	folder_path = '/Volumes/Research/Adler Research/Sophia OSS Stuff/'
 	file_path = folder_path+file_name
 
@@ -24,6 +27,7 @@ def readPickle(file_name):
 	return data
 
 def readNarrativeFile(narrative_number):
+	"""Read an xml file of a narrative and return the xml object"""
 	folder_path = '/Volumes/Research/Adler Research/Sophia OSS Stuff/' \
 		'Narratives_xml_tagged/' 
 	file_name = 'FLSA_{narrative_num}.xml'.format(narrative_num =
@@ -50,6 +54,9 @@ def readNarrativeFile(narrative_number):
 	#print(etree.tostring(narrative_xml, pretty_print=True))
 
 def getResponses(narrative_xml,coding_dimension):
+	""" go from the xml object to  a list of responses. The list of the 
+	responses (with scores) is a list of 
+	((scene text, scene score),[(ex text, ex score)]) entries"""
 	#Go from XML to list of (text,score) tuples
 	responses = []
 	scene_text = ''
@@ -81,6 +88,11 @@ def getResponses(narrative_xml,coding_dimension):
 	return responses
 
 def loadNarrativeData(coding_dimension, first = 1, last = 164):
+	"""Loads the narratives from first to last, and also pulls out the scores
+	corresponding to the inputted coding dimension. returns the list of responses
+	for each narrative in the format
+	[((scene test, scene score),[(ex text, ex score)])]
+	"""
 	responses = []
 
 	#Loop through all the narratives

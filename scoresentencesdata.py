@@ -3,6 +3,7 @@ import readnarratives
 import unicodedata
 
 def findOverlap (s1, s2):
+	"""Find the number of words that overlap in s1 and s2"""
 	s1_words = s1.split(' ')
 	s2_list = s2.split(' ')
 	s2_words = [word.replace('.','') for word in s2_list]
@@ -14,6 +15,8 @@ def findOverlap (s1, s2):
 	
 
 def getScore(sentence, example_texts, example_scores):
+	"""For each sentence, get the score for each sentence based on what
+	examle the sentence is from"""
 	max_overlap = 0
 	max_overlap_i = -1
 
@@ -43,6 +46,9 @@ def getScore(sentence, example_texts, example_scores):
 
 
 def getSentenceScores (narrative_response):
+	"""Given the response from a narrative return a list of sentences and their 
+	scores"""
+
 	scored_sentences = []
 	scene_text = narrative_response [0][0]
 	scene_score = narrative_response [0][1] 
@@ -65,6 +71,8 @@ def getSentenceScores (narrative_response):
 	return scored_sentences
 
 def getSentenceData(data):
+	"""This takes in an entire narrative's worth of data and scores is based 
+	on each scene. """
 	sentence_data = []
 	for scene in data:
 		sentence_data = sentence_data + getSentenceScores(scene)

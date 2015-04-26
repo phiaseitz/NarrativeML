@@ -3,6 +3,9 @@ import re
 import nltk
 
 def processText(text_data):
+	"""Given a list of text data, return a list of text that has no parentheses
+	 only alhpabet characters and spaces. Then, we stem the text using a porter
+	 2 stemmer and append each cleaned text to a list that we return"""
 	clean_texts = []
 	for text in text_data:
 		no_parens = removeParentheses(text)
@@ -15,21 +18,25 @@ def processText(text_data):
 	return clean_texts
 
 def removeNonAlphabet(text):
+	"""Remove anything that's not an alphabet character or a space from text"""
 	alpha = re.compile('[a-zA-Z .]*')
 	only_alphabet_list = alpha.findall(text)
 	only_alphabet = ''.join(only_alphabet_list)
 	return only_alphabet
 
 def removeParentheses(text):
+	"""Remove anything that's in parentheses from text"""
 	#print text
 	no_parentheses = re.sub(r'\s?\([^)]*\)', '', text)
 	return no_parentheses
 
 def removeExtraSpaces(text):
+	"""Remove any extra soaces from text"""
 	one_space = re.sub(r'\s+',' ', text)
 	return one_space
 
 def stemWords(text):
+	"""Stem words using the snowball stemmer (Porter 2)"""
 	words = text.split(' ')
 	stemmed_text = ''
 	stemmer = nltk.stem.snowball.SnowballStemmer("english", 
@@ -40,6 +47,7 @@ def stemWords(text):
 	return stemmed_text
 
 def discardBlanks (texts, scores):
+	"""Discard any black text entries and throw out shose scoress"""
 	new_texts = []
 	new_scores = []
 	for i,text in enumerate(texts):
@@ -50,6 +58,8 @@ def discardBlanks (texts, scores):
 
 
 def processAndPickle(file_name, dimension = 'agency', first = 1, last = 140):
+	"""Go from reading the narratives to making a processed pickle of 
+	all the data"""
 	clean_responses = []
 	responses = readnarratives.loadNarrativeData(dimension, first, last)
 	print responses [0]
