@@ -51,7 +51,19 @@ First, we get the narrative data from a pickle, Then, we split the data apart by
 
 Next, we take the scene text and split it apart by sentences. 
 
-Then, we score each sentence based on which example it overlaps the most with. 
+Then, we score each sentence based on which example it overlaps the most with.
+
+LEARNING
+(learningpipeline.py) 
+First, we go from actual coding system scores to scores of high agency, no agency, and low agency. 
+
+Then we split the test and training set
+
+Currently, we're trying to maximize ROC area, so then we pass that split test and  training set into our ROC area function, which we're trying to minimize. 
+
+VISUALIZING RESULTS
+Using the weights from the classifier and the vectorizer (we can get the translation from index in the vector to the word.) we can color each word in the sentence based on the weight and print out a visualization of all the words based on what weight they get in the classifier.
+
 
 
 

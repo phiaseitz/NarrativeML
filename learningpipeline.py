@@ -14,8 +14,11 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import SGDClassifier,Ridge,RidgeCV,LinearRegression
 from sklearn.linear_model import RidgeCV, LogisticRegression
 from sklearn.metrics import roc_auc_score
+
 def mostInformativeFeatures(classifier, vectorizer, 
 	categories,number_of_features):
+	"""This takes in a classfier and spits out the n most informative features
+	for each category"""
 	#Get all the names of the reatures
 	feature_names = numpy.asarray(vectorizer.get_feature_names())
 	for i, category in enumerate(categories):
@@ -28,6 +31,8 @@ def mostInformativeFeatures(classifier, vectorizer,
 
 def mostInformativeFeaturesRegression (classifier, vectorizer,
 	number_of_features):
+	"""This takes in a regression classfier and spits out the n features with 
+	the higest and lowest features."""
 	#If we're doing regression, we don't have weights based on category
 	#Then we print the most and least agentic words
 	feature_names = numpy.asarray(vectorizer.get_feature_names())
@@ -40,6 +45,8 @@ def mostInformativeFeaturesRegression (classifier, vectorizer,
 	print("Top Negative: %s" % ", ".join(feature_names[top_neg])) 
 
 def scoreNarrativeFromSentences (scores):
+	"""This takes in the scores for each sentence of the narrative and gives
+	the whole narrative a score based on that"""
 	non_zero = [score for score in scores if score != 0]
 
 	average = sum(non_zero)/len(non_zero)
@@ -51,6 +58,7 @@ def scoreNarrativeFromSentences (scores):
 
 
 def splitTestTrain(X,y, train_size = 0.66, random_state = 42):
+	"""Splitting X and y into test and train data"""
 	#Making my own so I can split text!
 	random.seed(random_state)
 	shuffle_X = X
@@ -71,6 +79,8 @@ def splitTestTrain(X,y, train_size = 0.66, random_state = 42):
 	return X_train, X_test, y_train, y_test
 
 def predictFromProbs(probs):
+	"""Predict a score for each sentence based one the probabilites of the 
+	scores"""
 	problow = [prob[0] for prob in probs]
 	probno = [prob[1] for prob in probs]
 	probhigh = [prob[2] for prob in probs]
@@ -105,6 +115,8 @@ def predictFromProbs(probs):
 
 	#print(avglow+avgno+avghigh)
 def ROCArea(args_for_min, X_train, y_train, X_test, y_test):
+	"""Find the area underneath the ROC curve for different values of the number
+	features and the value for C (both in args_for_min)"""
 	max_feat = abs(int(args_for_min[0]))
 	C = abs(args_for_min[1])
 	#Read Files
