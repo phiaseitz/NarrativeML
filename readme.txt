@@ -65,5 +65,13 @@ VISUALIZING RESULTS
 Using the weights from the classifier and the vectorizer (we can get the translation from index in the vector to the word.) we can color each word in the sentence based on the weight and print out a visualization of all the words based on what weight they get in the classifier.
 
 
+Also talk about the area under the ROC and what that is
+
+look at average weight assigned to my "agentic" words
+
+is there any way to understand, can we find out what the signal is? Is there some story to tell around this?
+
+Bag of words can't tell you everything, but it can't tell you everything
+
 
 

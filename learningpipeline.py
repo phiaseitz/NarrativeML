@@ -6,8 +6,8 @@ import random
 import scipy
 import math
 import mord
-import hydrat_code.classifier.ordinal as classifier
 from sklearn import metrics
+import matplotlib.pyplot as plt
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
@@ -115,10 +115,11 @@ def predictFromProbs(probs):
 
 	#print(avglow+avgno+avghigh)
 def ROCArea(args_for_min, X_train, y_train, X_test, y_test):
-	"""Find the area underneath the ROC curve for different values of the number
-	features and the value for C (both in args_for_min)"""
+	"""Find the area underneath the ROC curve for different values
+	 of the numberfeatures and the value for C (both in args_for_min)"""
 	max_feat = abs(int(args_for_min[0]))
 	C = abs(args_for_min[1])
+	max_ngrams = abs(int(args_for_min[2]))
 	#Read Files
 
 	#count_vect = CountVectorizer(stop_words = "english")
@@ -126,9 +127,12 @@ def ROCArea(args_for_min, X_train, y_train, X_test, y_test):
 	#count_vect = CountVectorizer(ngram_range=(1, 2))
 	#count_vect = CountVectorizer()
 	
-
-	tfidf_vect = TfidfVectorizer(token_pattern = r'\w*', 
+	if max_ngrams == 1:
+		tfidf_vect = TfidfVectorizer(token_pattern = r'\w*', 
 		max_features = max_feat)
+	else:
+		tfidf_vect = TfidfVectorizer(token_pattern = r'\w*', 
+		max_features = max_feat, ngram_range = (1,max_ngrams))
 
 	X_train_tfidf = tfidf_vect.fit_transform(X_train)
 	X_test_tfidf = tfidf_vect.fit_transform(X_test)
@@ -146,9 +150,15 @@ def ROCArea(args_for_min, X_train, y_train, X_test, y_test):
 		[prob[2]-prob[0] for i,prob in enumerate(probs_logistic) 
 		if y_test[i] != 0])
 
+	print "Maximum Features: {},C: {}, Ngrams: {} ".format(
+		max_feat, C,max_ngrams)
+	# print roc_area
+	# print '\n'
+
 	return 1-roc_area
 
-	# 	print "Maximum Features: {} and C: {}".format(max_feat, C)
+
+		#print "Maximum Features: {} and C: {}".format(max_feat, C)
 		
 	# 	print roc_area
 
@@ -185,11 +195,80 @@ def main():
 	numpy.set_printoptions(threshold=numpy.nan)
 
 
-	opvals = scipy.optimize.minimize(ROCArea, (450, 0.001), args = (
-		X_train, y_train, X_test, y_test), method = 'Nelder-Mead')
+	#opvals = scipy.optimize.minimize(ROCArea, (450, 0.001,7), args = (
+		# X_train, y_train, X_test, y_test), method = 'Nelder-Mead')
+	roc_max = 0
+	best_feats = 0
+	best_C = 0
+	best_ngrams = 0
 
-	print(opvals.x)
-	print(1- ROCArea(opvals.x,X_train, y_train, X_test, y_test))
+
+	max_feats = range (400, 600, 10)
+	max_feats_a = numpy.asarray(max_feats)
+	c_vals = [0.1,0.01,0.001,0.0001,0.00001]
+	c_vals_a = numpy.asarray(c_vals)
+	ngram_range = range(1,5)
+	ngram_range_a = numpy.asarray(ngram_range)
+
+	ROC = numpy.zeros((len(max_feats),len(c_vals), len(ngram_range)))
+
+	for i,max_feat in enumerate(max_feats):
+		for j,c_val in enumerate(c_vals):
+			for k,ngram in enumerate(ngram_range):
+				roc_temp = 1-ROCArea((max_feat,c_val,ngram), 
+					X_train, y_train, X_test, y_test)
+				ROC[i,j,k] = roc_temp
+				# print ROC
+				if roc_temp > roc_max:
+					roc_max = roc_temp
+					best_feats = max_feat
+					best_C = c_val
+					best_ngrams = ngram
+			print (
+				"Best Feats: {}, Best C: {}, Best Ngrams: {} ".format(
+					best_feats, best_C,best_ngrams))	
+			print (roc_max)
+	print ("Best Feats: {}, Best C: {}, Best Ngrams: {} ".format(
+					best_feats, best_C,best_ngrams))	
+	print (roc_max)
+
+	plt.subplot(2, 2, 1)
+	plt.pcolor(c_vals_a,max_feats_a,ROC[:,:,0])
+	plt.title('1 grams')
+	# set the limits of the plot to the limits of the data
+	plt.axis([c_vals_a.min(), c_vals_a.max(), max_feats_a.min(), 
+		max_feats_a.max()])	
+	plt.colorbar()
+
+	plt.subplot(2, 2, 2)
+	plt.pcolor(c_vals_a,max_feats_a,ROC[:,:,1])
+	plt.title('2 grams')
+	# set the limits of the plot to the limits of the data
+	plt.axis([c_vals_a.min(), c_vals_a.max(), max_feats_a.min(), 
+		max_feats_a.max()])
+	plt.colorbar()
+
+	plt.subplot(2, 2, 3)
+	plt.pcolor(c_vals_a,max_feats_a,ROC[:,:,2])
+	plt.title('3 grams')
+	# set the limits of the plot to the limits of the data
+	plt.axis([c_vals_a.min(), c_vals_a.max(), max_feats_a.min(), 
+		max_feats_a.max()])
+	plt.colorbar()
+
+	plt.subplot(2, 2, 4)
+	plt.pcolor(c_vals_a,max_feats_a,ROC[:,:,3])
+	plt.title('4 grams')
+	# set the limits of the plot to the limits of the data
+	plt.axis([c_vals_a.min(), c_vals_a.max(), max_feats_a.min(), 
+		max_feats_a.max()])
+	plt.colorbar()
+
+	
+	plt.show()
+
+	# print(opvals.x)
+	# print(1- ROCArea(opvals.x,X_train, y_train, X_test, y_test))
 
 
 	# #Read Files
