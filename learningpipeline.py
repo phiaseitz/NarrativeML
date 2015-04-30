@@ -203,9 +203,9 @@ def main():
 	best_ngrams = 0
 
 
-	max_feats = range (400, 600, 10)
+	max_feats = range (400, 500, 5)
 	max_feats_a = numpy.asarray(max_feats)
-	c_vals = [0.1,0.01,0.001,0.0001,0.00001]
+	c_vals = [0.1,0.01,0.001,0.0001,0.00001,0.000001,0.0000001,0.00000001]
 	c_vals_a = numpy.asarray(c_vals)
 	ngram_range = range(1,5)
 	ngram_range_a = numpy.asarray(ngram_range)
