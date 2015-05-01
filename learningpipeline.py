@@ -8,6 +8,8 @@ import math
 import mord
 from sklearn import metrics
 import matplotlib.pyplot as plt
+from matplotlib.colors import BoundaryNorm
+from matplotlib.ticker import MaxNLocator
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
@@ -137,7 +139,7 @@ def ROCArea(args_for_min, X_train, y_train, X_test, y_test):
 	X_train_tfidf = tfidf_vect.fit_transform(X_train)
 	X_test_tfidf = tfidf_vect.fit_transform(X_test)
 
-		#Logistic Regresssion
+	#Logistic Regresssion
 	#print('\n Logistic Regression \n')
 	logistic_model = LogisticRegression(penalty = 'l2',
 		tol = 0.00001, C=C, intercept_scaling=10000)
@@ -202,10 +204,15 @@ def main():
 	best_C = 0
 	best_ngrams = 0
 
+	roc_min = 1
+	worst_feats = 0
+	worst_C = 0
+	worst_ngrams = 0
 
-	max_feats = range (400, 500, 5)
+
+	max_feats = range (100, 1000, 10)
 	max_feats_a = numpy.asarray(max_feats)
-	c_vals = [0.1,0.01,0.001,0.0001,0.00001,0.000001,0.0000001,0.00000001]
+	c_vals = numpy.logspace(-4,-1,20).tolist()
 	c_vals_a = numpy.asarray(c_vals)
 	ngram_range = range(1,5)
 	ngram_range_a = numpy.asarray(ngram_range)
@@ -224,6 +231,11 @@ def main():
 					best_feats = max_feat
 					best_C = c_val
 					best_ngrams = ngram
+				if roc_temp < roc_min:
+					roc_min	 = roc_temp
+					worst_feats = max_feat
+					worst_C = c_val
+					worst_ngrams = ngram
 			print (
 				"Best Feats: {}, Best C: {}, Best Ngrams: {} ".format(
 					best_feats, best_C,best_ngrams))	
@@ -232,36 +244,45 @@ def main():
 					best_feats, best_C,best_ngrams))	
 	print (roc_max)
 
+	levels = MaxNLocator(nbins=15).tick_values(roc_min, roc_max)
+	cmap = plt.get_cmap('YlGnBu')
+	norm = BoundaryNorm(levels, ncolors=cmap.N, clip=True)
+
+
 	plt.subplot(2, 2, 1)
-	plt.pcolor(c_vals_a,max_feats_a,ROC[:,:,0])
+	plt.pcolor(numpy.log10(c_vals_a),max_feats_a,ROC[:,:,0],
+		cmap = cmap, norm = norm)
 	plt.title('1 grams')
 	# set the limits of the plot to the limits of the data
-	plt.axis([c_vals_a.min(), c_vals_a.max(), max_feats_a.min(), 
-		max_feats_a.max()])	
+	plt.axis([numpy.log10(c_vals_a).min(), numpy.log10(c_vals_a).max(), 
+		max_feats_a.min(), max_feats_a.max()])
 	plt.colorbar()
 
 	plt.subplot(2, 2, 2)
-	plt.pcolor(c_vals_a,max_feats_a,ROC[:,:,1])
+	plt.pcolor(numpy.log10(c_vals_a),max_feats_a,ROC[:,:,1],
+		cmap = cmap, norm = norm)
 	plt.title('2 grams')
 	# set the limits of the plot to the limits of the data
-	plt.axis([c_vals_a.min(), c_vals_a.max(), max_feats_a.min(), 
-		max_feats_a.max()])
+	plt.axis([numpy.log10(c_vals_a).min(), numpy.log10(c_vals_a).max(), 
+		max_feats_a.min(), max_feats_a.max()])
 	plt.colorbar()
 
 	plt.subplot(2, 2, 3)
-	plt.pcolor(c_vals_a,max_feats_a,ROC[:,:,2])
+	plt.pcolor(numpy.log10(c_vals_a),max_feats_a,ROC[:,:,2],
+		cmap = cmap, norm = norm)
 	plt.title('3 grams')
 	# set the limits of the plot to the limits of the data
-	plt.axis([c_vals_a.min(), c_vals_a.max(), max_feats_a.min(), 
-		max_feats_a.max()])
+	plt.axis([numpy.log10(c_vals_a).min(), numpy.log10(c_vals_a).max(), 
+		max_feats_a.min(), max_feats_a.max()])
 	plt.colorbar()
 
 	plt.subplot(2, 2, 4)
-	plt.pcolor(c_vals_a,max_feats_a,ROC[:,:,3])
+	plt.pcolor(numpy.log10(c_vals_a),max_feats_a,ROC[:,:,3],
+		cmap = cmap, norm = norm)
 	plt.title('4 grams')
 	# set the limits of the plot to the limits of the data
-	plt.axis([c_vals_a.min(), c_vals_a.max(), max_feats_a.min(), 
-		max_feats_a.max()])
+	plt.axis([numpy.log10(c_vals_a).min(), numpy.log10(c_vals_a).max(), 
+		max_feats_a.min(), max_feats_a.max()])
 	plt.colorbar()
 
 	
