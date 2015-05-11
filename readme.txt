@@ -59,19 +59,10 @@ First, we go from actual coding system scores to scores of high agency, no agenc
 
 Then we split the test and training set
 
-Currently, we're trying to maximize ROC area, so then we pass that split test and  training set into our ROC area function, which we're trying to minimize. 
+Currently, we're trying to maximize ROC area, so then we pass that split test and  training set into our ROC area function, which we're trying to minimize. We're using ROC  area as opposed to just the outputs of the predict function because the dataset is largely "no agency", and the computer learns a model where everything is "no agency". The probabilities, however, of low and high agency do change, though, just not enough to count as either agency. This means that we have to find other ways of seeing if there is some sort of signal in bag of words. To do this, we use ROC area. This function, given a binary decision problem (for example if given a high and low example but not told which is which, what is the probability that it could tell them apart.) In this case, we're pretty close to being able to tell things apart 50% of the time, which is meaningless, but there are some areas (like deciding between high and low) that get as high as 50%.
 
 VISUALIZING RESULTS
 Using the weights from the classifier and the vectorizer (we can get the translation from index in the vector to the word.) we can color each word in the sentence based on the weight and print out a visualization of all the words based on what weight they get in the classifier.
-
-
-Also talk about the area under the ROC and what that is
-
-look at average weight assigned to my "agentic" words
-
-is there any way to understand, can we find out what the signal is? Is there some story to tell around this?
-
-Bag of words can't tell you everything, but it can't tell you everything
 
 
 
