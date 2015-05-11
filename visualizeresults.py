@@ -117,7 +117,7 @@ def getWeightsFromDict(text,scene_vector,vectorizer, weights_dict,
 				weights.append(0)
 				#print([text[i]])
 
-	print(numpy.asarray(weights))
+	# print(numpy.asarray(weights))
 	return numpy.asarray(weights)
 
 # #Combines the two above functions

@@ -79,7 +79,7 @@ def main():
 		texts, scores_no_dec, 0.66, 42)
 
 	tfidf_vect = TfidfVectorizer(token_pattern = r'\w*', 
-		max_features = 450)
+		max_features = 1452)
 
 	X_train_tfidf = tfidf_vect.fit_transform(X_train)
 	X_test_tfidf = tfidf_vect.fit_transform(X_test)
@@ -89,7 +89,7 @@ def main():
 	#Logistic Regresssion
 	#print('\n Logistic Regression \n')
 	logistic_model = LogisticRegression(penalty = 'l2',
-		tol = 0.00001, C=0.001, intercept_scaling=10000)
+		tol = 0.00001)
 	logistic_model.fit(X_train_tfidf,y_train)
 	
 	predicted_logistic = logistic_model.predict(X_test_tfidf)
@@ -110,8 +110,10 @@ def main():
 
 	to_print = range(len(y_test))
 
+	#  
+
 	visualizeresults.visualizeWeightsList(to_print, X_test,X_test_tfidf,
-		predicted_logistic, y_test, tfidf_vect,logistic_model, True)
+		y_test, y_test, tfidf_vect,logistic_model, True)
 
 	visualizeresults.printKey()
 

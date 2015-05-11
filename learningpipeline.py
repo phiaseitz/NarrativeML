@@ -148,9 +148,14 @@ def ROCArea(args_for_min, X_train, y_train, X_test, y_test):
 	#predicted_logistic = logistic_model.predict(X_test_tfidf)
 	probs_logistic = logistic_model.predict_proba(X_test_tfidf)
 
+	# Tell pos apart from neg
 	roc_area = roc_auc_score([x == 1 for x in y_test if x != 0],
 		[prob[2]-prob[0] for i,prob in enumerate(probs_logistic) 
 		if y_test[i] != 0])
+
+	#Tell one apart from others
+	# roc_area = roc_auc_score([x == -1 for x in y_test],
+	# 	[prob[0] for i,prob in enumerate(probs_logistic)])
 
 	print "Maximum Features: {},C: {}, Ngrams: {} ".format(
 		max_feat, C,max_ngrams)
@@ -209,8 +214,7 @@ def main():
 	worst_C = 0
 	worst_ngrams = 0
 
-
-	max_feats = range (100, 1000, 10)
+	max_feats = range (300, 500, 10)
 	max_feats_a = numpy.asarray(max_feats)
 	c_vals = numpy.logspace(-4,-1,20).tolist()
 	c_vals_a = numpy.asarray(c_vals)
